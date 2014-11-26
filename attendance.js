@@ -1,3 +1,8 @@
+// -------- DON'T FORGET TO CHANGE CALENDAR OUTPUT HTML!!!!! ----------
+
+/**
+  *  Create Calendar
+  */
 // these are labels for the days of the week
 cal_days_labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -97,3 +102,96 @@ var changeMonth = document.getElementsByClassName('change-month');
 for ( var i = 0; i < changeMonth.length; i++) {
   changeMonth[i].addEventListener('click', newMonth);
 }
+
+// End of step Create Calendar
+
+
+/**
+  * Create Employee Object
+  */
+
+// Iterate over all the input fields in the employee form and create an object out of them
+
+// Store object in local storage
+
+// Edit Employee Object
+
+// End of Create Employee Objects
+
+
+/**
+  *  Add new attendance data
+  */
+
+// Find the record for the employee in local storage
+
+// Check if date exists already
+    // IF it exists Append attendance data 
+    // Else it doesn't exist, create new attendance date key
+        // create times array
+        // append the time in and time out data
+
+// Update time data
+    // Get attendance data and display in form
+    // On submit it replaces the data
+
+/**
+  *  Binding attendance data to calendar
+  */
+
+// Iterate through all elements with the class calendar-day
+    // Insert attributes and values that correspond with that day
+    // Add status class to elements to change CSS styles
+    // Add click event listener
+
+// On click pull up data
+    // Pull all attributes and values from element
+    // Create temp object to store this data
+    // Create output html
+    // Insert html into overlay
+
+// On Edit click for day info
+    // Pull temp object from Local storage
+    // Create form html
+    // Insert html in overlay
+    // Update any changed data to temp object
+    
+// On edit day submit
+    // Pull all data from form
+    // Update employee attendance record
+    // Remove temp object
+
+
+/**
+  *  Calculate and display stats
+  */
+    
+// Calculate stats
+    // Calculate status precentages based on total number of days in month
+        // Days of perfect attendance
+        // Days Late
+        // Days Leave early
+        // Days Absent
+        // Days Requested Off
+// Display Stats
+    // Take all data and create output html in right sidebar area
+
+// Framework? chart.js
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
