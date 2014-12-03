@@ -41,9 +41,9 @@ function Calendar(month, year) {
     var monthName = cal_months_labels[this.month];
     var html = '<table class="calendar-table">';
     html += '<tr><th colspan="7">';
-    html += '<a href="javascript::void(0);" class="change-month" month="' + (parseInt(this.month) === 0 ? 11 : (parseInt(this.month) - 1)) + '" year="' + (parseInt(this.month) === 0 ? (parseInt(this.year) - 1) : this.year) + '"><<</a>';
+    html += '<a href="javascript:void(0)" class="change-month" month="' + (parseInt(this.month) === 0 ? 11 : (parseInt(this.month) - 1)) + '" year="' + (parseInt(this.month) === 0 ? (parseInt(this.year) - 1) : this.year) + '"><<</a>';
     html +=  monthName + "&nbsp;" + this.year;
-    html += '<a href="javascript::void(0);" class="change-month" month="' + (this.month == 11 ? 0 : (parseInt(this.month) + 1)) + '" year="' + (this.month == 11 ? (parseInt(this.year) + 1) : this.year) + '">>></a>';
+    html += '<a href="javascript:void(0)" class="change-month" month="' + (this.month == 11 ? 0 : (parseInt(this.month) + 1)) + '" year="' + (this.month == 11 ? (parseInt(this.year) + 1) : this.year) + '">>></a>';
     html += '</th></tr>';
     html += '<tr class="calendar-header">';
     for(var i = 0; i <= 6; i++ ){
@@ -82,26 +82,31 @@ function Calendar(month, year) {
     return this.html;
   };
 }
-var cal = new Calendar();
-cal.generateHTML();
-document.getElementById('calendar').innerHTML = cal.getHTML();
 
-function newMonth() {
-  var month = this.getAttribute('month');
-  var year = this.getAttribute('year');
-  var cal = new Calendar(month, year);
-  cal.generateHTML();
-  document.getElementById('calendar').innerHTML = cal.getHTML();
-  var changeMonth = document.getElementsByClassName('change-month');
-  for ( var i = 0; i < changeMonth.length; i++) {
-    changeMonth[i].addEventListener('click', newMonth);
-  }
-}
+window.onload = function() {
+    var cal = new Calendar();
+    cal.generateHTML();
+    document.getElementById('calendar').innerHTML = cal.getHTML();
 
-var changeMonth = document.getElementsByClassName('change-month');
-for ( var i = 0; i < changeMonth.length; i++) {
-  changeMonth[i].addEventListener('click', newMonth);
-}
+
+    function newMonth() {
+      var month = this.getAttribute('month');
+      var year = this.getAttribute('year');
+      var cal = new Calendar(month, year);
+      cal.generateHTML();
+      document.getElementById('calendar').innerHTML = cal.getHTML();
+      var changeMonth = document.getElementsByClassName('change-month');
+      for ( var i = 0; i < changeMonth.length; i++) {
+        changeMonth[i].addEventListener('click', newMonth);
+      }
+    }// End of newMonth function
+
+    var changeMonth = document.getElementsByClassName('change-month');
+    for ( var i = 0; i < changeMonth.length; i++) {
+      changeMonth[i].addEventListener('click', newMonth);
+    }// End of changeMonth function
+
+}; // End of window.onload
 
 // End of step Create Calendar
 

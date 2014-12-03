@@ -1,0 +1,44 @@
+* {
+    margin: 0;
+}
+nav {
+    border-bottom: solid 1px black;
+}
+nav ul > li{
+    list-style: none;
+    display: inline-block;
+    padding: 10px 5px;
+}
+
+nav ul > li > a {
+    text-align: center;
+   
+}
+
+#calendar {
+    width: 66%;
+    padding: 10px;
+    border-right: solid 1px black;
+    box-sizing: border-box;
+    float: left;
+}
+
+#attendanceStats {
+    width: 33%;
+    margin: 10px auto;
+    box-sizing: border-box;
+    float: right;
+}
+
+#newEmployeeForm {
+    clear: both;
+    position: absolute;
+    border: solid 1px black;
+    background: #eee;
+    width: 100%;
+    display: none;
+}
+#newEmployeeForm label {
+    display:block;
+    
+}
