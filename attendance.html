@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
-    
+
 <head>
     <link rel="stylesheet" href="attendance.css" />
     <meta charset="utf-8">
     <title>Attendance App</title>
 </head>
-    
+
 <body>
     <nav>
         <ul>
@@ -19,12 +19,12 @@
             </li>
             <li><a href="javascript:void(0)">Edit Employee</a></li>
             <li><a href="javascript:void(0)">Add Employee</a></li>
-            
+
         </ul>
     </nav>
-    
+
     <div id="calendar"></div>
-    
+
     <div id="attendanceStats">
         <h2>Attendance Stats</h2>
         <p>Present: <span id="present"></span></p>
@@ -32,9 +32,9 @@
         <p>Left Early: <span id="leftEarly"></span></p>
         <p>Day Off: <span id="dayOff"></span></p>
         <p>No Show: <span id="noShow"></span></p>
-        
+
     </div> <!-- End of attendanceStats div -->
-    
+
     <div id="newEmployeeForm">
         <div class="close">X</div>
         <fieldset>
@@ -48,45 +48,45 @@
 
                     <h4>Schedule (In Time &amp; Out Time)</h4>
                     <label>Sunday: </label>
-                        <input type="text" placeholder="9:00 am" name="inTime" class="employeeData scheduleData">
-                        <input type="text" placeholder="5:00 pm" name="outTime" class="employeeData scheduleData">
+                        <input type="text" placeholder="9:00 am" name="inTime" class="scheduleData">
+                        <input type="text" placeholder="5:00 pm" name="outTime" class="scheduleData">
                     <label>Monday: </label>
-                        <input type="text" placeholder="9:00 am" name="inTime" class="employeeData scheduleData">
-                        <input type="text" placeholder="5:00 pm" name="outTime" class="employeeData scheduleData">
+                        <input type="text" placeholder="9:00 am" name="inTime" class="scheduleData">
+                        <input type="text" placeholder="5:00 pm" name="outTime" class="scheduleData">
                     <label>Tuesday: </label>
-                        <input type="text" placeholder="9:00 am" name="inTime" class="employeeData scheduleData">
-                        <input type="text" placeholder="5:00 pm" name="outTime" class="employeeData scheduleData">
+                        <input type="text" placeholder="9:00 am" name="inTime" class="scheduleData">
+                        <input type="text" placeholder="5:00 pm" name="outTime" class="scheduleData">
                     <label>Wednesday: </label>
-                        <input type="text" placeholder="9:00 am" name="inTime" class="employeeData scheduleData">
-                        <input type="text" placeholder="5:00 pm" name="outTime" class="employeeData scheduleData">
+                        <input type="text" placeholder="9:00 am" name="inTime" class="scheduleData">
+                        <input type="text" placeholder="5:00 pm" name="outTime" class="scheduleData">
                     <label>Thursday: </label>
-                        <input type="text" placeholder="9:00 am" name="inTime" class="employeeData scheduleData">
-                        <input type="text" placeholder="5:00 pm" name="outTime" class="employeeData scheduleData">
+                        <input type="text" placeholder="9:00 am" name="inTime" class="scheduleData">
+                        <input type="text" placeholder="5:00 pm" name="outTime" class="scheduleData">
                     <label>Friday: </label>
-                        <input type="text" placeholder="9:00 am" name="inTime" class="employeeData scheduleData">
-                        <input type="text" placeholder="5:00 pm" name="outTime" class="employeeData scheduleData">
+                        <input type="text" placeholder="9:00 am" name="inTime" class="scheduleData">
+                        <input type="text" placeholder="5:00 pm" name="outTime" class="scheduleData">
                     <label>Saturday: </label>
-                        <input type="text" placeholder="9:00 am" name="inTime" class="employeeData scheduleData">
-                        <input type="text" placeholder="5:00 pm" name="outTime" class="employeeData scheduleData">
+                        <input type="text" placeholder="9:00 am" name="inTime" class="scheduleData">
+                        <input type="text" placeholder="5:00 pm" name="outTime" class="scheduleData">
                     <button id="newEmployeeSubmit">Add Employee</button>
         </fieldset>
-        
-        
+
+
     </div><!-- End of newEmployeeForm -->
-    
+
     <div id="calendarDay">
         <h4 id="currentDay"></h4>
         <div id="dayStats">
-            
+
         </div>
         <button id="dayEdit">Edit Day</button>
         <fieldset>
             <legend>Edit Day</legend>
-            
+
         </fieldset>
     </div>
-    
-    
+
+
 </body>
 <script src="attendance.js"></script>
 </html>

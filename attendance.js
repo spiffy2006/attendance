@@ -84,6 +84,15 @@ function Calendar(month, year) {
 }
 
 window.onload = function() {
+
+    if ( typeof( Storage ) !== "undefined" ) {
+      if ( localStorage.getItem( "attendanceApp" ) === null ) {
+        localStorage.setItem( "attendanceApp", JSON.stringify( {} ) );
+      }
+    } else {
+      alert( "Your browser doesn't support localStorage." );
+    }
+
     var cal = new Calendar();
     cal.generateHTML();
     document.getElementById('calendar').innerHTML = cal.getHTML();
@@ -106,6 +115,27 @@ window.onload = function() {
       changeMonth[i].addEventListener('click', newMonth);
     }// End of changeMonth function
 
+    function validateScheduleData() {
+      var scheduleData = document.getElementsByClassName( 'scheduleData' );
+      var validated = true;
+      for ( var i = 0; i < scheduleData.length; i++ ) {
+        var _this = scheduleData[i];
+        if ( !validateTime( _this.value ) ) {
+          _this.setAttribute( 'class', 'red' );
+          validated = false;
+        }
+      }
+      return validated;
+    }
+
+    function validateTime( value ) {
+      var regex = /\d{1,2}\:\d{2}\ (am|pm)/;
+      var pattern = new RegExp( regex );
+      return pattern.test( value );
+    }
+
+
+
 }; // End of window.onload
 
 // End of step Create Calendar
@@ -115,11 +145,139 @@ window.onload = function() {
   * Create Employee Object
   */
 
-// Iterate over all the input fields in the employee form and create an object out of them
+function Employee( edit ) {
 
-// Store object in local storage
+  this.edit = edit;
+  // Iterate over all the input fields in the employee form and create an object out of them
 
-// Edit Employee Object
+  // Creates or updates employee
+  this.updateEmployee = function() {
+
+    if ( validateScheduleData() ) {
+
+      this.saveEmployee();
+
+    } else {
+
+      alert( "There were errors with your time format. Please format 12:00 pm");
+
+    }
+
+  };
+
+  // Gathers all data for employee object
+  this.getEmployeeObj = function() {
+
+    var employeeObj = {};
+    this.getEmployeeData();
+
+    for ( var i in this.employeeData ) {
+
+      employeeObj[i] = employeeData[i];
+
+    }
+
+    employeeObj[ 'schedule' ] = this.schedule();
+
+    this.employeeObj = employeeObj;
+
+  };
+
+  // Pulls employee data excluding schedule from employee form
+  this.getEmployeeData = function() {
+
+    var employeeData = document.getElementsByClassName( 'employeeData' );
+    var employee = {};
+
+    for ( var i = 0; i < employeeData.length; i++ ) {
+
+      employee[ employeeData[i].getAttribute( 'name' ) ] = employeeData[i].value;
+
+    }
+
+    this.getSchedule();
+    this.employeeData = employee;
+
+  };
+
+  // Pulls schedule data from employee form
+  this.getSchedule = function() {
+
+    var scheduleData = document.getElementsByClassName( 'scheduleData' );
+    var schedule = [];
+    var tmpObj = {};
+
+    for ( var i = 0; i < scheduleData.length; i += 2 ) {
+
+      tmpObj = {
+        inTime: scheduleData[i].value,
+        outTime: scheduleData[ i + 1 ].value
+      };
+
+      schedule.push( tmpObj );
+
+    }
+
+    this.schedule = schedule;
+
+  };
+
+  this.getAttendanceData() {
+    return JSON.parse( localStorage.getItem( 'attendanceApp' ) );
+  }
+
+  // Store object in local storage
+  this.saveEmployee = function() {
+
+    var attendanceAppObj = this.getAttendanceData();
+
+    this.getEmployeeObj();
+    attendanceAppObj[ this.employeeObj.name ] = employeeObj;
+
+    localStorage.setItem( 'attendanceApp', JSON.stringify( attendanceAppObj ) );
+
+  };
+
+  /**
+    * NEED TO MAKE FUNCTION TO PRE-FILL EMPLOYEE FORM DATA
+    */
+
+    this.fillEmployeeBasic = function( name, val ) {
+      document.getElementsByName( name )[0].value = val;
+    };
+
+    this.fillEmployeeSchedule = function( data ) {
+      var scheduleData = document.getElementsByClassName( 'scheduleData' );
+      for ( var i = 0; i < data.length; i += 2 ) {
+        scheduleData[ i ].value = data[ i ].inTime;
+        scheduleData[ i + 1 ].value = data[ i ].outTime;
+      }
+    };
+
+    this.fillEmployeeForm = function() {
+
+      var attendanceAppObj = this.getAttendanceData();
+
+      for ( var i in attendanceAppObj ) {
+
+        if ( i == 'schedule' ) {
+          this.fillEmployeeSchedule( attendanceAppObj[ i ] );
+        } else if ( i == 'attendance' ) {
+          continue;
+        } else {
+          this.fillEmployeeBasic( i, attendanceAppObj[ i ] );
+        }
+
+      }
+
+    };
+
+    if ( this.edit ) {
+      this.fillEmployeeForm();
+    }
+    this.updateEmployee();
+
+}
 
 // End of Create Employee Objects
 
@@ -131,7 +289,7 @@ window.onload = function() {
 // Find the record for the employee in local storage
 
 // Check if date exists already
-    // IF it exists Append attendance data 
+    // IF it exists Append attendance data
     // Else it doesn't exist, create new attendance date key
         // create times array
         // append the time in and time out data
@@ -160,7 +318,7 @@ window.onload = function() {
     // Create form html
     // Insert html in overlay
     // Update any changed data to temp object
-    
+
 // On edit day submit
     // Pull all data from form
     // Update employee attendance record
@@ -170,7 +328,7 @@ window.onload = function() {
 /**
   *  Calculate and display stats
   */
-    
+
 // Calculate stats
     // Calculate status precentages based on total number of days in month
         // Days of perfect attendance
@@ -182,21 +340,3 @@ window.onload = function() {
     // Take all data and create output html in right sidebar area
 
 // Framework? chart.js
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
