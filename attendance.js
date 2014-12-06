@@ -222,10 +222,6 @@ function Employee( edit ) {
 
   };
 
-  this.getAttendanceData() {
-    return JSON.parse( localStorage.getItem( 'attendanceApp' ) );
-  }
-
   // Store object in local storage
   this.saveEmployee = function() {
 
@@ -277,6 +273,10 @@ function Employee( edit ) {
     }
     this.updateEmployee();
 
+}
+
+Employee.getAttendanceData = function() {
+  return JSON.parse( localStorage.getItem( 'attendanceApp' ) );
 }
 
 // End of Create Employee Objects
