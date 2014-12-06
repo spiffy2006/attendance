@@ -36,9 +36,28 @@ nav ul > li > a {
     border: solid 1px black;
     background: #eee;
     width: 100%;
-    display: none;
 }
+
 #newEmployeeForm label {
     display:block;
     
+}
+
+#newEmployeeForm h4 {
+    margin: 15px 0 5px;
+}
+
+button: {
+    display: block;   
+}
+
+.close {
+    float: right;
+    height: 32px;
+    width: 32px;
+    display: block;
+}
+
+.hide {
+    display: none;
 }

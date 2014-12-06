@@ -83,39 +83,10 @@ function Calendar(month, year) {
   };
 }
 
-window.onload = function() {
-
-    if ( typeof( Storage ) !== "undefined" ) {
-      if ( localStorage.getItem( "attendanceApp" ) === null ) {
-        localStorage.setItem( "attendanceApp", JSON.stringify( {} ) );
-      }
-    } else {
-      alert( "Your browser doesn't support localStorage." );
-    }
-
-    var cal = new Calendar();
-    cal.generateHTML();
-    document.getElementById('calendar').innerHTML = cal.getHTML();
+// End of step Create Calendar
 
 
-    function newMonth() {
-      var month = this.getAttribute('month');
-      var year = this.getAttribute('year');
-      var cal = new Calendar(month, year);
-      cal.generateHTML();
-      document.getElementById('calendar').innerHTML = cal.getHTML();
-      var changeMonth = document.getElementsByClassName('change-month');
-      for ( var i = 0; i < changeMonth.length; i++) {
-        changeMonth[i].addEventListener('click', newMonth);
-      }
-    }// End of newMonth function
-
-    var changeMonth = document.getElementsByClassName('change-month');
-    for ( var i = 0; i < changeMonth.length; i++) {
-      changeMonth[i].addEventListener('click', newMonth);
-    }// End of changeMonth function
-
-    function validateScheduleData() {
+function validateScheduleData() {
       var scheduleData = document.getElementsByClassName( 'scheduleData' );
       var validated = true;
       for ( var i = 0; i < scheduleData.length; i++ ) {
@@ -134,21 +105,11 @@ window.onload = function() {
       return pattern.test( value );
     }
 
-
-
-}; // End of window.onload
-
-// End of step Create Calendar
-
-
 /**
   * Create Employee Object
   */
 
-function Employee( edit ) {
-
-  this.edit = edit;
-  // Iterate over all the input fields in the employee form and create an object out of them
+function Employee() {
 
   // Creates or updates employee
   this.updateEmployee = function() {
@@ -177,7 +138,7 @@ function Employee( edit ) {
 
     }
 
-    employeeObj[ 'schedule' ] = this.schedule();
+    employeeObj[ 'schedule' ] = this.schedule;
 
     this.employeeObj = employeeObj;
 
@@ -232,29 +193,32 @@ function Employee( edit ) {
 
     localStorage.setItem( 'attendanceApp', JSON.stringify( attendanceAppObj ) );
 
-  };
+  }; 
 
-  /**
-    * NEED TO MAKE FUNCTION TO PRE-FILL EMPLOYEE FORM DATA
-    */
+}
 
-    this.fillEmployeeBasic = function( name, val ) {
-      document.getElementsByName( name )[0].value = val;
-    };
+Employee.getAttendanceData = function() {
+  return JSON.parse( localStorage.getItem( 'attendanceApp' ) );
+};
 
-    this.fillEmployeeSchedule = function( data ) {
-      var scheduleData = document.getElementsByClassName( 'scheduleData' );
-      for ( var i = 0; i < data.length; i += 2 ) {
+Employee.fillEmployeeBasic = function( name, val ) {
+    document.getElementsByName( name )[0].value = val;
+};
+
+Employee.fillEmployeeSchedule = function( data ) {
+    var scheduleData = document.getElementsByClassName( 'scheduleData' );
+    for ( var i = 0; i < data.length; i += 2 ) {
         scheduleData[ i ].value = data[ i ].inTime;
         scheduleData[ i + 1 ].value = data[ i ].outTime;
-      }
-    };
+    }
+};
 
-    this.fillEmployeeForm = function() {
 
-      var attendanceAppObj = this.getAttendanceData();
+Employee.fillEmployeeForm = function() {
 
-      for ( var i in attendanceAppObj ) {
+    var attendanceAppObj = this.getAttendanceData();
+
+    for ( var i in attendanceAppObj ) {
 
         if ( i == 'schedule' ) {
           this.fillEmployeeSchedule( attendanceAppObj[ i ] );
@@ -264,20 +228,11 @@ function Employee( edit ) {
           this.fillEmployeeBasic( i, attendanceAppObj[ i ] );
         }
 
-      }
-
-    };
-
-    if ( this.edit ) {
-      this.fillEmployeeForm();
     }
-    this.updateEmployee();
 
-}
+};
 
-Employee.getAttendanceData = function() {
-  return JSON.parse( localStorage.getItem( 'attendanceApp' ) );
-}
+
 
 // End of Create Employee Objects
 
@@ -340,3 +295,81 @@ Employee.getAttendanceData = function() {
     // Take all data and create output html in right sidebar area
 
 // Framework? chart.js
+
+// Extra Crap for now **********************************************************************
+    
+function hide(selector) {
+    console.log("This is the hide selector: " + selector);
+    document.getElementById(selector).setAttribute('class', 'hide');
+}
+
+//Window onload
+window.onload = function() {
+
+    if ( typeof( Storage ) !== "undefined" ) {
+      if ( localStorage.getItem( "attendanceApp" ) === null ) {
+        localStorage.setItem( "attendanceApp", JSON.stringify( {} ) );
+      }
+    } else {
+      alert( "Your browser doesn't support localStorage." );
+    }
+
+    var cal = new Calendar();
+    cal.generateHTML();
+    document.getElementById('calendar').innerHTML = cal.getHTML();
+
+
+    function newMonth() {
+      var month = this.getAttribute('month');
+      var year = this.getAttribute('year');
+      var cal = new Calendar(month, year);
+      cal.generateHTML();
+      document.getElementById('calendar').innerHTML = cal.getHTML();
+      var changeMonth = document.getElementsByClassName('change-month');
+      for ( var i = 0; i < changeMonth.length; i++) {
+        changeMonth[i].addEventListener('click', newMonth);
+      }
+    }// End of newMonth function
+
+    var changeMonth = document.getElementsByClassName('change-month');
+    for ( var i = 0; i < changeMonth.length; i++) {
+      changeMonth[i].addEventListener('click', newMonth);
+    }// End of changeMonth function
+
+    document.getElementById('editEmployee').addEventListener('click', function() {
+        document.getElementById('newEmployeeForm').setAttribute('class', '');
+        Employee.fillEmployeeForm();
+    });
+    
+    document.getElementById('addEmployee').addEventListener('click', function() {
+        document.getElementById('newEmployeeForm').setAttribute('class', '');
+    });
+    
+    document.getElementById('newEmployeeSubmit').addEventListener('click', function() {
+        var employee = new Employee();
+        employee.updateEmployee();
+        hide('newEmployeeForm');
+    });
+    
+    var close = document.getElementsByClassName('close');
+    for (var i = 0; i < close.length; i++) {
+        close[i].addEventListener( 'click', function() {
+            hide(this.getAttribute('container'));
+        });
+    }
+    
+
+}; // End of window.onload
+
+
+
+
+
+
+
+
+
+
+
+
+

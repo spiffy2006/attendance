@@ -17,8 +17,8 @@
                     <option>Nigga</option>
                 </select>
             </li>
-            <li><a href="javascript:void(0)">Edit Employee</a></li>
-            <li><a href="javascript:void(0)">Add Employee</a></li>
+            <li><a id="editEmployee" href="javascript:void(0)">Edit Employee</a></li>
+            <li><a id="addEmployee" href="javascript:void(0)">Add Employee</a></li>
 
         </ul>
     </nav>
@@ -35,8 +35,8 @@
 
     </div> <!-- End of attendanceStats div -->
 
-    <div id="newEmployeeForm">
-        <div class="close">X</div>
+    <div id="newEmployeeForm" class="hide">
+        <a class="close" container="newEmployeeForm" href="javascript:void(0)">X</a>
         <fieldset>
             <legend>Add New Employee</legend>
                 <label>Name: </label>
