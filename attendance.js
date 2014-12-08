@@ -18,92 +18,106 @@ cal_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 cal_current_date = new Date();
 
 function Calendar(month, year) {
-  this.month = (isNaN(month) || month == null) ? cal_current_date.getMonth() : month;
-  this.year  = (isNaN(year) || year == null) ? cal_current_date.getFullYear() : year;
-  this.html = '';
-  this.generateHTML = function(){
+    this.month = (isNaN(month) || month == null) ? cal_current_date.getMonth() : month;
+    this.year  = (isNaN(year) || year == null) ? cal_current_date.getFullYear() : year;
+    this.html = '';
+    this.generateHTML = function() {
 
-    // get first day of month
-    var firstDay = new Date(this.year, this.month, 1);
-    var startingDay = firstDay.getDay();
+        // get first day of month
+        var firstDay = new Date(this.year, this.month, 1);
+        var startingDay = firstDay.getDay();
 
-    // find number of days in month
-    var monthLength = cal_days_in_month[this.month];
+        // find number of days in month
+        var monthLength = cal_days_in_month[this.month];
 
-    // compensate for leap year
-    if (this.month == 1) { // February only!
-      if((this.year % 4 === 0 && this.year % 100 !== 0) || this.year % 400 === 0){
-        monthLength = 29;
-      }
-    }
-
-    // do the header
-    var monthName = cal_months_labels[this.month];
-    var html = '<table class="calendar-table">';
-    html += '<tr><th colspan="7">';
-    html += '<a href="javascript:void(0)" class="change-month" month="' + (parseInt(this.month) === 0 ? 11 : (parseInt(this.month) - 1)) + '" year="' + (parseInt(this.month) === 0 ? (parseInt(this.year) - 1) : this.year) + '"><<</a>';
-    html +=  monthName + "&nbsp;" + this.year;
-    html += '<a href="javascript:void(0)" class="change-month" month="' + (this.month == 11 ? 0 : (parseInt(this.month) + 1)) + '" year="' + (this.month == 11 ? (parseInt(this.year) + 1) : this.year) + '">>></a>';
-    html += '</th></tr>';
-    html += '<tr class="calendar-header">';
-    for(var i = 0; i <= 6; i++ ){
-      html += '<td class="calendar-header-day">';
-      html += cal_days_labels[i];
-      html += '</td>';
-    }
-    html += '</tr><tr>';
-
-    // fill in the days
-    var day = 1;
-    // this loop is for is weeks (rows)
-    for (i = 0; i < 9; i++) {
-    // this loop is for weekdays (cells)
-      for (var j = 0; j <= 6; j++) {
-        html += '<td class="calendar-day">';
-        if (day <= monthLength && (i > 0 || j >= startingDay)) {
-          html += day;
-          day++;
+        // compensate for leap year
+        if (this.month == 1) { // February only!
+            if((this.year % 4 === 0 && this.year % 100 !== 0) || this.year % 400 === 0){
+                monthLength = 29;
+            }
         }
-        html += '</td>';
-      }
-      // stop making rows if we've run out of days
-      if (day > monthLength) {
-        break;
-      } else {
+
+        // do the header
+        var monthName = cal_months_labels[this.month];
+        var html = '<table class="calendar-table">';
+        html += '<tr><th colspan="7">';
+        html += '<a href="javascript:void(0)" class="change-month" month="' + (parseInt(this.month) === 0 ? 11 : (parseInt(this.month) - 1)) + '" year="' + (parseInt(this.month) === 0 ? (parseInt(this.year) - 1) : this.year) + '"><<</a>';
+        html +=  monthName + "&nbsp;" + this.year;
+        html += '<a href="javascript:void(0)" class="change-month" month="' + (this.month == 11 ? 0 : (parseInt(this.month) + 1)) + '" year="' + (this.month == 11 ? (parseInt(this.year) + 1) : this.year) + '">>></a>';
+        html += '</th></tr>';
+        html += '<tr class="calendar-header">';
+        for(var i = 0; i <= 6; i++ ){
+            html += '<td class="calendar-header-day">';
+            html += cal_days_labels[i];
+            html += '</td>';
+        }
         html += '</tr><tr>';
-      }
-    }
-    html += '</tr></table>';
 
-    this.html = html;
-  };
+        // fill in the days
+        var day = 1;
+        // this loop is for is weeks (rows)
+        for (i = 0; i < 9; i++) {
+        // this loop is for weekdays (cells)
+            for (var j = 0; j <= 6; j++) {
+                html += '<td';
+                if (day <= monthLength && (i > 0 || j >= startingDay)) {
+                    html += ' date="' + this.year + '-' + (this.month+1) + '-' + day + '" class="calendar-day">';
+                    html += day;
+                    day++;
+                } else {
+                    html += '>';
+                }
+                html += '</td>';
+            }
+            // stop making rows if we've run out of days
+            if (day > monthLength) {
+                break;
+            } else {
+                html += '</tr><tr>';
+            }
+        }
+        html += '</tr></table>';
 
-  this.getHTML = function() {
-    return this.html;
-  };
+        this.html = html;
+    };
+
+    this.getHTML = function() {
+        return this.html;
+    };
 }
 
 // End of step Create Calendar
 
+/**
+  * Create Schedule Object
+  */
 
-function validateScheduleData() {
-      var scheduleData = document.getElementsByClassName( 'scheduleData' );
-      var validated = true;
-      for ( var i = 0; i < scheduleData.length; i++ ) {
-        var _this = scheduleData[i];
-        if ( !validateTime( _this.value ) ) {
-          _this.setAttribute( 'class', 'red' );
-          validated = false;
+function Schedule() {
+
+    this.validateScheduleData = function() {
+        var scheduleData = document.getElementsByClassName( 'timeValidate' );
+        var validated = true;
+        for ( var i = 0; i < scheduleData.length; i++ ) {
+            if ( _this.value == '' ) {
+                continue;
+            }
+            var _this = scheduleData[i];
+            if ( !this.validateTime( _this.value ) ) {
+                _this.setAttribute( 'class', 'red' );
+                validated = false;
+            }
         }
-      }
-      return validated;
+        return validated;
+    };
+
+    this.validateTime = function( value ) {
+        var regex = /\d{1,2}\:\d{2}\ (am|pm)/;
+        var pattern = new RegExp( regex );
+        return pattern.test( value );
     }
 
-    function validateTime( value ) {
-      var regex = /\d{1,2}\:\d{2}\ (am|pm)/;
-      var pattern = new RegExp( regex );
-      return pattern.test( value );
-    }
+};
+
 
 /**
   * Create Employee Object
@@ -111,94 +125,94 @@ function validateScheduleData() {
 
 function Employee() {
 
-  // Creates or updates employee
-  this.updateEmployee = function() {
+    // Creates or updates employee
+    this.updateEmployee = function() {
+        var schedule = new Schedule();
+        if ( schedule.validateScheduleData() ) {
 
-    if ( validateScheduleData() ) {
+            this.saveEmployee();
 
-      this.saveEmployee();
+        } else {
 
-    } else {
+            alert( "There were errors with your time format. Please format 12:00 pm");
 
-      alert( "There were errors with your time format. Please format 12:00 pm");
+        }
 
-    }
+    };
 
-  };
+    // Gathers all data for employee object
+    this.getEmployeeObj = function() {
 
-  // Gathers all data for employee object
-  this.getEmployeeObj = function() {
+        var employeeObj = {};
+        this.getEmployeeData();
 
-    var employeeObj = {};
-    this.getEmployeeData();
+        for ( var i in this.employeeData ) {
 
-    for ( var i in this.employeeData ) {
+            employeeObj[i] = this.employeeData[i];
 
-      employeeObj[i] = employeeData[i];
+        }
 
-    }
+        employeeObj[ 'schedule' ] = this.schedule;
 
-    employeeObj[ 'schedule' ] = this.schedule;
+        this.employeeObj = employeeObj;
 
-    this.employeeObj = employeeObj;
+    };
 
-  };
+    // Pulls employee data excluding schedule from employee form
+    this.getEmployeeData = function() {
 
-  // Pulls employee data excluding schedule from employee form
-  this.getEmployeeData = function() {
+        var employeeData = document.getElementsByClassName( 'employeeData' );
+        var employee = {};
 
-    var employeeData = document.getElementsByClassName( 'employeeData' );
-    var employee = {};
+        for ( var i = 0; i < employeeData.length; i++ ) {
 
-    for ( var i = 0; i < employeeData.length; i++ ) {
+            employee[ employeeData[i].getAttribute( 'name' ) ] = employeeData[i].value;
 
-      employee[ employeeData[i].getAttribute( 'name' ) ] = employeeData[i].value;
+        }
 
-    }
+        this.getSchedule();
+        this.employeeData = employee;
 
-    this.getSchedule();
-    this.employeeData = employee;
+    };
 
-  };
+    // Pulls schedule data from employee form
+    this.getSchedule = function() {
 
-  // Pulls schedule data from employee form
-  this.getSchedule = function() {
+        var scheduleData = document.getElementsByClassName( 'scheduleData' );
+        var schedule = [];
+        var tmpObj = {};
 
-    var scheduleData = document.getElementsByClassName( 'scheduleData' );
-    var schedule = [];
-    var tmpObj = {};
+        for ( var i = 0; i < scheduleData.length; i += 2 ) {
 
-    for ( var i = 0; i < scheduleData.length; i += 2 ) {
+            tmpObj = {
+                inTime: scheduleData[i].value,
+                outTime: scheduleData[ i + 1 ].value
+            };
 
-      tmpObj = {
-        inTime: scheduleData[i].value,
-        outTime: scheduleData[ i + 1 ].value
-      };
+            schedule.push( tmpObj );
 
-      schedule.push( tmpObj );
+        }
 
-    }
+        this.schedule = schedule;
 
-    this.schedule = schedule;
+    };
 
-  };
+    // Store object in local storage
+    this.saveEmployee = function() {
 
-  // Store object in local storage
-  this.saveEmployee = function() {
+        var attendanceAppObj = Employee.getAttendanceData();
 
-    var attendanceAppObj = this.getAttendanceData();
+        this.getEmployeeObj();
+        attendanceAppObj[ this.employeeObj.name ] = this.employeeObj;
 
-    this.getEmployeeObj();
-    attendanceAppObj[ this.employeeObj.name ] = employeeObj;
+        localStorage.setItem( 'attendanceApp', JSON.stringify( attendanceAppObj ) );
 
-    localStorage.setItem( 'attendanceApp', JSON.stringify( attendanceAppObj ) );
-
-  }; 
+    };
 
 }
 
 Employee.getAttendanceData = function() {
-  return JSON.parse( localStorage.getItem( 'attendanceApp' ) );
+    return JSON.parse( localStorage.getItem( 'attendanceApp' ) );
 };
 
 Employee.fillEmployeeBasic = function( name, val ) {
@@ -207,25 +221,27 @@ Employee.fillEmployeeBasic = function( name, val ) {
 
 Employee.fillEmployeeSchedule = function( data ) {
     var scheduleData = document.getElementsByClassName( 'scheduleData' );
-    for ( var i = 0; i < data.length; i += 2 ) {
-        scheduleData[ i ].value = data[ i ].inTime;
-        scheduleData[ i + 1 ].value = data[ i ].outTime;
+    for ( var i = 0; i < data.length; i++ ) {
+        scheduleData[ i * 2 ].value = data[ i ].inTime;
+        scheduleData[ (i * 2) + 1 ].value = data[ i ].outTime;
     }
 };
 
 
 Employee.fillEmployeeForm = function() {
 
-    var attendanceAppObj = this.getAttendanceData();
+    var employee = document.getElementById('employees').value;
+    var attendanceAppObj = Employee.getAttendanceData();
+    var employeeData = attendanceAppObj[ employee ];
 
-    for ( var i in attendanceAppObj ) {
+    for ( var i in employeeData ) {
 
         if ( i == 'schedule' ) {
-          this.fillEmployeeSchedule( attendanceAppObj[ i ] );
+            Employee.fillEmployeeSchedule( employeeData[ i ] );
         } else if ( i == 'attendance' ) {
-          continue;
+            continue;
         } else {
-          this.fillEmployeeBasic( i, attendanceAppObj[ i ] );
+            Employee.fillEmployeeBasic( i, employeeData[ i ] );
         }
 
     }
@@ -241,7 +257,89 @@ Employee.fillEmployeeForm = function() {
   *  Add new attendance data
   */
 
-// Find the record for the employee in local storage
+function Attendance( employee ) {
+    
+    this.employee = employee;
+    this.employeeData = Employee.getAttendanceData()[ employee ];
+    
+    // Pull attendance record from user data
+    if (  this.employeeData.hasOwnProperty('attendance') ) {
+        this.attendance = this.employeeData['attendance'];
+    } else {
+        this.attendance = {};
+    }
+    
+    // Check if date exists in dataset and return data if it does and return false if not
+    this.getDateAttendance = function( date ) {
+        if ( date in this.attendance ) {
+            return this.attendance[ date ];
+        } else {
+            return false;
+        }
+    };
+    
+    // Update localStorage
+    this.updateTimeData = function() {
+        localStorage.setItem( 'attendanceApp', JSON.stringify( this.attendanceData ) );
+    };
+    
+    // Create attendance form html and put it in the attendanceInputs div
+    this.fillAttendanceForm = function( date ) {
+        var dayTimes = this.getDateAttendance( date );
+        var html = '';
+        if ( dayTimes ) {
+            for( var i = 0; i < dayTimes.length; i++ ) {
+                if ( i % 2 === 0 ) {
+                    html += '<p><input type="text" class="attendanceTimes timeValidate" value="' + dayTimes[i] + '" />';
+                } else {
+                    html += '<input type="text" class="attendanceTimes timeValidate" value="' + dayTimes[i] + '" /></p>';
+                }
+            }
+        } else {
+            html += '<p><input type="text" placeholder="9:00 am" class="attendanceTimes timeValidate" />';
+            html += '<input type="text" placeholder="5:00 pm" class="attendanceTimes timeValidate" /></p>';
+        }
+        document.getElementById('attendanceInputs').innerHTML = html;
+    };
+    
+    // Create array of attendance data in form
+    this.getAttendanceFormData = function() {        
+        var attendanceTimes = document.getElementsByClassName('attendanceTimes');
+        var attendance = [];
+        var tmpObj = {};
+        for ( var i = 0; i < attendanceTimes.length; i += 2 ) {
+
+            tmpObj = {
+                inTime: attendanceTimes[i].value,
+                outTime: attendanceTimes[ i + 1 ].value
+            };
+
+            attendance.push( tmpObj );
+
+        }
+        return attendance;
+    };
+    
+    // If times are formatted correctly returns form data array
+    this.getFormAttendance = function() {
+        var validated = new Schedule().validateScheduleData();
+        if ( validated ) {
+            return this.getAttendanceFormData();
+        } else {
+            return false;
+        }
+    };
+    
+    // Updates attendance data if it is validated
+    this.updateAttendanceRecord = function( date ) {
+        var newRecord = this.getFormAttendance();
+        if ( newRecord ) {
+            this.attendanceData[ this.employee ]['attendance'][ date ] = newRecord;
+            this.updateTimeData();
+        } else {
+            alert( "There were errors with your time format. Please format 12:00 pm");
+        }
+    };
 
 // Check if date exists already
     // IF it exists Append attendance data
@@ -256,6 +354,58 @@ Employee.fillEmployeeForm = function() {
 /**
   *  Binding attendance data to calendar
   */
+    
+    // Determine type of requestOff data, and set that information in the pop-up window
+    this.parseRequestTime = function( data ) {
+        var html = '';
+        switch ( typeof( data ) ) {
+            case 'boolean':
+                html = '<div><p>No requested time off.</p></div>';
+            break;
+            case 'object':
+                html = '<div><p>Time was requested of from: ' + data.timeStart + '-' + data.timeEnd + '.</p></div>';
+            break;
+            case 'string':
+                html = '<div><p>' + string + 'was requested off.</p></div>';
+            break;
+        }
+        document.getElementById('dayTimeOff').innerHTML = html;
+    };
+    
+    // Puts all data from a day into pop-up window
+    this.viewDay = function( date ) {
+        var attendance = this.getDateAttendance( date );
+        document.getElementById('currentDay').innerHTML = date;
+        for ( var i in attendance ) {
+            switch ( i ) {
+                case 'times':
+                    this.fillAttendanceForm( date );
+                break;
+                case 'requestOff':
+                    this.parseRequestTime( attendance['requestOff'] );
+                break;
+                default:
+                    document.getElementById(i).innerHTML = attendance[i];
+                break;
+            }
+        }
+    };
+    
+    // Binds calendar days to a click function and sets status class
+    this.bindCalendarClick = function() {
+        var calendarDays = document.getElementsByClassName('calendar-day');
+        for ( var i = 0; i < calendarDays.length; i++ ) {
+            var status = this.getDateAttendance( calendarDays[i].getAttribute('date') )['status'];
+            addClass( calendarDays[i], status );
+            var _this = this;
+            calendarDays[i].addEventListener('click', function() {
+                var cDay = document.getElementById('calendarDay');
+                var date = cDay.getAttribute('date');
+                removeClass( cDay, 'hide' );
+                _this.viewDay( date );
+            });
+        }
+    };
 
 // Iterate through all elements with the class calendar-day
     // Insert attributes and values that correspond with that day
@@ -278,7 +428,16 @@ Employee.fillEmployeeForm = function() {
     // Pull all data from form
     // Update employee attendance record
     // Remove temp object
+}
 
+// Adds an attendance field in day view form
+Attendance.newAttendanceField = function() {
+    var attendanceInputs = document.getElementById('attendanceInputs');
+    var html = attendanceInputs.innerHTML;
+    html += '<p><input type="text" placeholder="9:00 am" class="attendanceTimes timeValidate" />';
+    html += '<input type="text" placeholder="5:00 pm" class="attendanceTimes timeValidate" /></p>';
+    attendanceInputs.innerHTML = html;
+};
 
 /**
   *  Calculate and display stats
@@ -297,22 +456,82 @@ Employee.fillEmployeeForm = function() {
 // Framework? chart.js
 
 // Extra Crap for now **********************************************************************
-    
+
+// Hides
 function hide(selector) {
-    console.log("This is the hide selector: " + selector);
     document.getElementById(selector).setAttribute('class', 'hide');
+}
+
+// returns list of employees
+function getEmployees() {
+    var attendanceData = Employee.getAttendanceData();
+    var employees = [];
+    for ( var i in attendanceData ) {
+        employees.push(i);
+    }
+    return employees;
+}
+
+// Creates employee options html and sets them to select employee dropdown
+function employeeSelectOptions() {
+    var select = document.getElementById('employees');
+    var employees = getEmployees();
+    var selectHTML = '<option value="">--select--</option>';
+    for ( var i = 0; i < employees.length; i++ ) {
+        selectHTML += '<option>' + employees[i] + '</option>';
+    }
+    select.innerHTML = selectHTML;
+}
+
+// Sets fields empty on array of elements
+function clearFields(elements) {
+    for( var i = 0; i < elements.length; i++ ) {
+        elements[i].value = '';
+    }
+}
+
+// Clears emeployee form
+function clearEmployeeForm() {
+    var basic = document.getElementsByClassName('employeeData');
+    var schedule = document.getElementsByClassName('scheduleData');
+    clearFields(basic);
+    clearFields(schedule);
+}
+
+// Safely adds a class to an element
+function addClass( element, className ) {
+    var classAttr = element.getAttribute('class');
+    if ( classAttr == '' ) {
+        element.setAttribute( 'class', className );
+    } else {
+        element.setAttribute( 'class', ' ' + classAttr );
+    }
+}
+
+// Safely removes class from an element.
+function removeClass( element, className ) {
+    var classAttr = element.getAttribute('class');
+    var attrArr = classAttr.split(' ');
+    var index = attrArr.indexOf( className );
+    if ( index > -1 ){
+      attrArr.splice(index, 1);
+    }
+    element.setAttribute( 'class', attrArr.join(' ') );
 }
 
 //Window onload
 window.onload = function() {
 
     if ( typeof( Storage ) !== "undefined" ) {
-      if ( localStorage.getItem( "attendanceApp" ) === null ) {
-        localStorage.setItem( "attendanceApp", JSON.stringify( {} ) );
-      }
+        if ( localStorage.getItem( "attendanceApp" ) === null ) {
+            localStorage.setItem( "attendanceApp", JSON.stringify( {} ) );
+        }
     } else {
-      alert( "Your browser doesn't support localStorage." );
+        alert( "Your browser doesn't support localStorage." );
+        return false;
     }
+
+    employeeSelectOptions();
 
     var cal = new Calendar();
     cal.generateHTML();
@@ -320,35 +539,46 @@ window.onload = function() {
 
 
     function newMonth() {
-      var month = this.getAttribute('month');
-      var year = this.getAttribute('year');
-      var cal = new Calendar(month, year);
-      cal.generateHTML();
-      document.getElementById('calendar').innerHTML = cal.getHTML();
-      var changeMonth = document.getElementsByClassName('change-month');
-      for ( var i = 0; i < changeMonth.length; i++) {
-        changeMonth[i].addEventListener('click', newMonth);
-      }
+        var month = this.getAttribute('month');
+        var year = this.getAttribute('year');
+        var cal = new Calendar(month, year);
+        cal.generateHTML();
+        document.getElementById('calendar').innerHTML = cal.getHTML();
+        var changeMonth = document.getElementsByClassName('change-month');
+        for ( var i = 0; i < changeMonth.length; i++) {
+            changeMonth[i].addEventListener('click', newMonth);
+        }
     }// End of newMonth function
 
     var changeMonth = document.getElementsByClassName('change-month');
     for ( var i = 0; i < changeMonth.length; i++) {
-      changeMonth[i].addEventListener('click', newMonth);
+        changeMonth[i].addEventListener('click', newMonth);
     }// End of changeMonth function
 
     document.getElementById('editEmployee').addEventListener('click', function() {
         document.getElementById('newEmployeeForm').setAttribute('class', '');
         Employee.fillEmployeeForm();
     });
-    
+
     document.getElementById('addEmployee').addEventListener('click', function() {
         document.getElementById('newEmployeeForm').setAttribute('class', '');
     });
-    
+
     document.getElementById('newEmployeeSubmit').addEventListener('click', function() {
         var employee = new Employee();
         employee.updateEmployee();
         hide('newEmployeeForm');
+        employeeSelectOptions();
+        clearEmployeeForm();
+    });
+    
+    document.getElementById('employees').addEventListener('change', function() {
+        var calendarDays = document.getElementsByClassName('calendar-day');
+        var name  = document.getElementById('employees').value;
+        if ( name != '' ) {
+            var attendance = new Attendance( name );
+            attendance.bindCalendarClick();
+        }
     });
     
     var close = document.getElementsByClassName('close');
@@ -357,19 +587,6 @@ window.onload = function() {
             hide(this.getAttribute('container'));
         });
     }
-    
+
 
 }; // End of window.onload
-
-
-
-
-
-
-
-
-
-
-
-
-

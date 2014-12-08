@@ -12,7 +12,7 @@ nav ul > li{
 
 nav ul > li > a {
     text-align: center;
-   
+
 }
 
 #calendar {
@@ -23,6 +23,17 @@ nav ul > li > a {
     float: left;
 }
 
+table.calendar-table {
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+table.calendar-table td {
+    border: 1px solid;
+    padding: 5px 5px 35px;
+}
+
 #attendanceStats {
     width: 33%;
     margin: 10px auto;
@@ -30,7 +41,7 @@ nav ul > li > a {
     float: right;
 }
 
-#newEmployeeForm {
+#newEmployeeForm, #calendarDay {
     clear: both;
     position: absolute;
     border: solid 1px black;
@@ -40,7 +51,7 @@ nav ul > li > a {
 
 #newEmployeeForm label {
     display:block;
-    
+
 }
 
 #newEmployeeForm h4 {
@@ -48,7 +59,7 @@ nav ul > li > a {
 }
 
 button: {
-    display: block;   
+    display: block;
 }
 
 .close {
@@ -60,4 +71,8 @@ button: {
 
 .hide {
     display: none;
+}
+
+.red {
+    background: red;
 }
