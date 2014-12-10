@@ -98,10 +98,11 @@ function Schedule() {
         var scheduleData = document.getElementsByClassName( 'timeValidate' );
         var validated = true;
         for ( var i = 0; i < scheduleData.length; i++ ) {
+            var _this = scheduleData[i];
             if ( _this.value == '' ) {
                 continue;
             }
-            var _this = scheduleData[i];
+            
             if ( !this.validateTime( _this.value ) ) {
                 _this.setAttribute( 'class', 'red' );
                 validated = false;
@@ -260,7 +261,8 @@ Employee.fillEmployeeForm = function() {
 function Attendance( employee ) {
     
     this.employee = employee;
-    this.employeeData = Employee.getAttendanceData()[ employee ];
+    this.attendanceData = Employee.getAttendanceData();
+    this.employeeData = this.attendanceData[ employee ];
     
     // Pull attendance record from user data
     if (  this.employeeData.hasOwnProperty('attendance') ) {
@@ -272,7 +274,7 @@ function Attendance( employee ) {
     // Check if date exists in dataset and return data if it does and return false if not
     this.getDateAttendance = function( date ) {
         if ( date in this.attendance ) {
-            return this.attendance[ date ];
+            return this.attendance[ date ][ 'times' ];
         } else {
             return false;
         }
@@ -313,7 +315,7 @@ function Attendance( employee ) {
                 inTime: attendanceTimes[i].value,
                 outTime: attendanceTimes[ i + 1 ].value
             };
-
+            
             attendance.push( tmpObj );
 
         }
@@ -334,12 +336,27 @@ function Attendance( employee ) {
     this.updateAttendanceRecord = function( date ) {
         var newRecord = this.getFormAttendance();
         if ( newRecord ) {
-            this.attendanceData[ this.employee ]['attendance'][ date ] = newRecord;
+            if ('attendance' in this.attendanceData[ this.employee ]) {
+                this.attendanceData[ this.employee ]['attendance'][ date ][ 'times'] = newRecord;
+            } else {
+                var tmpObj = {
+                    times: newRecord, 
+                    status: '',
+                    excused: 'boolean',
+                    requestOff: ''
+                };
+                tmpObj[ date ] = newRecord;
+                this.attendanceData[ this.employee ].attendance = tmpObj;
+            }
+            
             this.updateTimeData();
+                
         } else {
             alert( "There were errors with your time format. Please format 12:00 pm");
         }
     };
+    
+    
 
 // Check if date exists already
     // IF it exists Append attendance data
@@ -377,6 +394,7 @@ function Attendance( employee ) {
         var attendance = this.getDateAttendance( date );
         document.getElementById('currentDay').innerHTML = date;
         for ( var i in attendance ) {
+            console.log(i);
             switch ( i ) {
                 case 'times':
                     this.fillAttendanceForm( date );
@@ -395,12 +413,12 @@ function Attendance( employee ) {
     this.bindCalendarClick = function() {
         var calendarDays = document.getElementsByClassName('calendar-day');
         for ( var i = 0; i < calendarDays.length; i++ ) {
-            var status = this.getDateAttendance( calendarDays[i].getAttribute('date') )['status'];
-            addClass( calendarDays[i], status );
+            /*var status = this.getDateAttendance( calendarDays[i].getAttribute('date') )['status'];
+            addClass( calendarDays[i], status );*/ 
             var _this = this;
             calendarDays[i].addEventListener('click', function() {
                 var cDay = document.getElementById('calendarDay');
-                var date = cDay.getAttribute('date');
+                var date = this.getAttribute('date');
                 removeClass( cDay, 'hide' );
                 _this.viewDay( date );
             });
@@ -418,14 +436,25 @@ function Attendance( employee ) {
     // Create output html
     // Insert html into overlay
 
-// On Edit click for day info
-    // Pull temp object from Local storage
-    // Create form html
-    // Insert html in overlay
-    // Update any changed data to temp object
-
 // On edit day submit
     // Pull all data from form
+    // Already exists!
+    /*this.saveDay = function( date ) {
+        var attendanceTimes = document.getElementsByClassName('attendanceTimes');
+        var attendance = [];
+        var tmpObj = {};
+        
+        for(var i = 0; i < attendanceTimes.length; i += 2) {
+            tmpObj = {
+                timeIn: attendanceTimes[i],
+                timeOut: attendanceTimes[i + 1]
+            };
+            attendance.push(tmpObj);
+        }
+        
+        
+    };
+    */
     // Update employee attendance record
     // Remove temp object
 }
@@ -435,8 +464,15 @@ Attendance.newAttendanceField = function() {
     var attendanceInputs = document.getElementById('attendanceInputs');
     var html = attendanceInputs.innerHTML;
     html += '<p><input type="text" placeholder="9:00 am" class="attendanceTimes timeValidate" />';
-    html += '<input type="text" placeholder="5:00 pm" class="attendanceTimes timeValidate" /></p>';
+    html += '<input type="text" placeholder="5:00 pm" class="attendanceTimes timeValidate" /><span class="deleteTime"> - </span></p>';
     attendanceInputs.innerHTML = html;
+    var deleteTime = document.getElementsByClassName('deleteTime');
+    for (var i = 0; i < delteTime.length; i++) {
+        delteTime[i].addEventListener('click', function() {
+           // Delete Time Data
+            this.parentNode.parentNode.removeChild(this.parentNode);
+        });
+    }
 };
 
 /**
@@ -579,6 +615,12 @@ window.onload = function() {
             var attendance = new Attendance( name );
             attendance.bindCalendarClick();
         }
+    });
+    
+    document.getElementById('saveDay').addEventListener('click', function() {
+        var employee = document.getElementById('employees').value;
+        var date = document.getElementById('currentDay').textContent;
+        new Attendance(employee).updateAttendanceRecord( date );
     });
     
     var close = document.getElementsByClassName('close');
