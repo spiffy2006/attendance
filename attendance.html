@@ -73,12 +73,26 @@
     
     <div id="calendarDay" class="hide">
         <a class="close" container="calendarDay" href="javascript:void(0)">X</a>
-        <h4 id="currentDay">Taco</h4>
-        <div id="status"></div>
-        <div id="excused"></div>
-        <div id="dayTimeOff"></div>
+        <h4 id="currentDay"></h4>
+        
         <fieldset>
             <legend>Edit Day</legend>
+            <div id="status">
+                <p>Attendance Status</p>
+                <select>
+                    <option>----Select----</option>
+                    <option>Request Time Off</option>
+                    <option>Present</option>
+                    <option>Late</option>
+                    <option>Early Leave</option>
+                    <option>Absent</option>
+                </select>
+            </div>
+            <div id="excused">
+                <input type="checkbox" name="excused" value="excused"><span> Excused</span>
+            </div><br />
+            <div id="dayTimeOff"></div>
+            <p class="clockInOut">In and Out Times:</p>
             <div id="attendanceInputs">
                 <p>
                     <input type="text" placeholder="9:00 am" class="attendanceTimes timeValidate" />

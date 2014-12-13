@@ -1,6 +1,9 @@
+/* ---------- Reset ---------- */
 * {
     margin: 0;
 }
+
+/* ---------- Navigation ---------- */
 nav {
     border-bottom: solid 1px black;
 }
@@ -15,6 +18,7 @@ nav ul > li > a {
 
 }
 
+/* ---------- Calendar ---------- */
 #calendar {
     width: 66%;
     padding: 10px;
@@ -34,6 +38,8 @@ table.calendar-table td {
     padding: 5px 5px 35px;
 }
 
+
+/* ---------- Attendance Stats ---------- */
 #attendanceStats {
     width: 33%;
     margin: 10px auto;
@@ -41,6 +47,8 @@ table.calendar-table td {
     float: right;
 }
 
+
+/* ---------- Employee Form ---------- */
 #newEmployeeForm, #calendarDay {
     clear: both;
     position: absolute;
@@ -63,6 +71,16 @@ button: {
     display: block;
 }
 
+/* ---------- Day Edit Form ----------*/
+#status, #excused {
+    display: inline-block;
+}
+
+p.clockInOut {
+    margin-top: 10px;
+}
+
+/* ---------- Close / Hide ---------- */
 .close {
     float: right;
     height: 32px;
