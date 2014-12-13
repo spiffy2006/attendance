@@ -598,6 +598,7 @@ window.onload = function() {
 
     document.getElementById('addEmployee').addEventListener('click', function() {
         document.getElementById('newEmployeeForm').setAttribute('class', '');
+        clearEmployeeForm();
     });
 
     document.getElementById('newEmployeeSubmit').addEventListener('click', function() {

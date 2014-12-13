@@ -47,6 +47,7 @@ table.calendar-table td {
     border: solid 1px black;
     background: #eee;
     width: 100%;
+    padding: 10px;
 }
 
 #newEmployeeForm label {
