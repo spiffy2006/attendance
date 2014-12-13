@@ -77,20 +77,21 @@
         
         <fieldset>
             <legend>Edit Day</legend>
-            <div id="status">
-                <p>Attendance Status</p>
-                <select>
-                    <option>----Select----</option>
-                    <option>Request Time Off</option>
-                    <option>Present</option>
-                    <option>Late</option>
-                    <option>Early Leave</option>
-                    <option>Absent</option>
-                </select>
+            <p id="status"></p>
+            <div>
+                <input id="overwrite" class="attendanceData" type="checkbox" name="overwrite" />
+                <span>Overwrite Status</span>
             </div>
-            <div id="excused">
-                <input type="checkbox" name="excused" value="excused"><span> Excused</span>
-            </div><br />
+            <select id="overwriteStatus" class="hide"> <!--Dynamically add class attendanceData-->
+                <option>----Select----</option>
+                <option>Present</option>
+                <option>Late</option>
+                <option>Early Leave</option>
+                <option>Absent</option>
+            </select>
+            <div>
+                <input id="excused" class="attendanceData" type="checkbox" name="excused" /><span> Excused</span>
+            </div>
             <div id="dayTimeOff"></div>
             <p class="clockInOut">In and Out Times:</p>
             <div id="attendanceInputs">
@@ -99,6 +100,7 @@
                     <input type="text" placeholder="5:00 pm" class="attendanceTimes timeValidate" />
                 </p>
             </div>
+            <button id="addAttendanceInputs">+</button><br />
             <button id="saveDay">Save</button>
         </fieldset>
     </div>

@@ -72,9 +72,9 @@ button: {
 }
 
 /* ---------- Day Edit Form ----------*/
-#status, #excused {
+/*#status, #excused {
     display: inline-block;
-}
+}*/
 
 p.clockInOut {
     margin-top: 10px;
@@ -94,4 +94,35 @@ p.clockInOut {
 
 .red {
     background: red;
+}
+
+/* ---------- Status Colors ---------- */
+.present {
+    background: #A5FFBB;
+}
+
+.late, .earlyLeave {
+    background: #ffb;
+    color: red;
+}
+
+.late.excused, .earlyLeave.excused {
+    background: #ffb;
+    color: #000;
+}
+
+.absent {
+    background: #FFA7A7;
+}
+
+.absent.excused {
+    background: #FFDE9C;
+}
+
+.dayOff {
+    background: #ddd;
+}
+
+.requestOff {
+    background: #D9E9FD;
 }

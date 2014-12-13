@@ -283,6 +283,7 @@ function Attendance( employee ) {
     // Update localStorage
     this.updateTimeData = function() {
         localStorage.setItem( 'attendanceApp', JSON.stringify( this.attendanceData ) );
+        console.log(this.attendanceData);
     };
     
     // Create attendance form html and put it in the attendanceInputs div
@@ -291,19 +292,20 @@ function Attendance( employee ) {
         var html = '';
         if ( attendance ) {
             dayTimes = attendance[ 'times' ];
-            for( var i = 0; i < dayTimes.length; i += 2 ) {
+            for( var i = 0; i < dayTimes.length; i++ ) {
                 html += '<p><input type="text" class="attendanceTimes timeValidate" value="' + dayTimes[i].inTime + '" />';
-                html += '<input type="text" class="attendanceTimes timeValidate" value="' + dayTimes[i].outTime + '" /></p>';
+                html += '<input type="text" class="attendanceTimes timeValidate" value="' + dayTimes[i].outTime + '" /><button class="deleteTime"> - </button></p>';
             }
         } else {
             html += '<p><input type="text" placeholder="9:00 am" class="attendanceTimes timeValidate" />';
-            html += '<input type="text" placeholder="5:00 pm" class="attendanceTimes timeValidate" /></p>';
+            html += '<input type="text" placeholder="5:00 pm" class="attendanceTimes timeValidate" /><button class="deleteTime"> - </button></p>';
         }
         document.getElementById('attendanceInputs').innerHTML = html;
+        deleteTimeListener();
     };
     
     // Create array of attendance data in form
-    this.getAttendanceFormData = function() {        
+    this.getAttendanceFormData = function() {
         var attendanceTimes = document.getElementsByClassName('attendanceTimes');
         var attendance = [];
         var tmpObj = {};
@@ -320,6 +322,60 @@ function Attendance( employee ) {
         return attendance;
     };
     
+    // Create time object from in and out times
+    this.getTimeObject = function(inoutTimes) {
+        var timeObj = {
+            ampm: {},
+            hours: {},
+            minutes: {}            
+        };
+        var split = '';
+        console.log(inoutTimes);
+        for ( var i in inoutTimes ) {            
+            split = inoutTimes[i].split(' ');
+            timeObj.ampm[i] = split[1];
+            timeObj.hours[i] = split[1] == 'pm' ? parseInt(split[0].split(':')[0]) + 12 : parseInt(split[0].split(':')[0]);
+            timeObj.minutes[i] = parseInt(split[0].split(':')[1]);
+        }
+        return timeObj;
+    };
+    
+    // Compare times to schedule
+    this.compareSchedule = function( day, compareTime ) {
+        var daySchedule = this.employeeData.schedule[day];
+        var scheduleTime = this.getTimeObject(daySchedule);
+        var scheduleMinutes = {
+            inTime: ( scheduleTime.hours.inTime * 60 + scheduleTime.minutes.inTime ) + 15,
+            outTime: ( scheduleTime.hours.inTime * 60 + scheduleTime.minutes.inTime ) - 15
+        };
+        var compareMinutes = {
+            inTime: ( compareTime.hours.inTime * 60 + compareTime.minutes.inTime ) + 15,
+            outTime: ( compareTime.hours.inTime * 60 + compareTime.minutes.inTime ) - 15
+        };
+        var status = 'Present';
+        if ( scheduleMinutes.inTime < compareMinutes.inTime ) {
+            status = 'Late';
+        } else if ( scheduleMinutes.outTime > compareMinutes.outTime ) {
+            status = 'Early Leave';
+        }
+        return status;
+    };
+    
+    // Determine the day's status
+    this.getAttendanceStatus = function( date, record ) {
+        var day = new Date( date ).getDay();
+        var inTime = record[0].inTime;
+        console.log(record);
+        var outTime = '';
+        if (record.length > 1) {
+            outTime = record[record.length - 1].outTime;
+        } else {
+            outTime = record[0].outTime;
+        }
+        var timeObj = this.getTimeObject( {inTime: inTime, outTime: outTime} );
+        return this.compareSchedule( day, timeObj );
+    };
+    
     // If times are formatted correctly returns form data array
     this.getFormAttendance = function() {
         var validated = new Schedule().validateScheduleData();
@@ -333,23 +389,46 @@ function Attendance( employee ) {
     // Updates attendance data if it is validated
     this.updateAttendanceRecord = function( date ) {
         var newRecord = this.getFormAttendance();
+        var excused = document.getElementById('excused').checked;
+        var overwrite = document.getElementById('overwrite').checked;
+        var status = '';
+        if (overwrite) {
+            status = document.getElementById('overwriteStatus').value;
+        } else {
+            console.log(newRecord);
+            status = this.getAttendanceStatus( date, newRecord );
+        }
         if ( newRecord ) {
             if ('attendance' in this.attendanceData[ this.employee ]) {
                 if ( date in this.attendanceData[ this.employee ].attendance) {
-                    this.attendanceData[ this.employee ].attendance[ date ].times.push(newRecord);
+                    this.attendanceData[ this.employee ].attendance[ date ].times = [];
+                    for ( var i = 0; i < newRecord.length; i++) {
+                        this.attendanceData[ this.employee ].attendance[ date ].times.push(newRecord[i]);
+                        console.log(this.attendanceData[ this.employee ].attendance[ date ].times);
+                    }
+                    this.attendanceData[ this.employee ].attendance[ date ].excused = excused;
+                    this.attendanceData[ this.employee ].attendance[ date ].overwrite = overwrite;
+                    this.attendanceData[ this.employee ].attendance[ date ].status = status;
+                    console.log('date');
                 } else {
                     this.attendanceData[ this.employee ].attendance[ date ] = {};
                     this.attendanceData[ this.employee ].attendance[ date ].times = newRecord;
+                    this.attendanceData[ this.employee ].attendance[ date ].excused = excused;
+                    this.attendanceData[ this.employee ].attendance[ date ].overwrite = overwrite;
+                    this.attendanceData[ this.employee ].attendance[ date ].status = status;
+                    console.log('false');
                 }
             } else {
                 var tmpObj = {};
                 tmpObj[date] = {
                     times: newRecord, 
-                    status: '',
-                    excused: 'boolean',
+                    status: status,
+                    excused: excused,
+                    overwrite: overwrite,
                     requestOff: ''
                 };
                 this.attendanceData[ this.employee ].attendance = tmpObj;
+                console.log('else');
             }
             
             this.updateTimeData();
@@ -405,8 +484,11 @@ function Attendance( employee ) {
                 case 'requestOff':
                     this.parseRequestTime( attendance['requestOff'] );
                 break;
+                case 'status':
+                    document.getElementById(i).innerHTML = 'Attendance Status: ' + attendance[i];
+                break;
                 default:
-                    document.getElementById(i).innerHTML = attendance[i];
+                    document.getElementById(i).checked = attendance[i];
                 break;
             }
         }
@@ -466,17 +548,14 @@ function Attendance( employee ) {
 // Adds an attendance field in day view form
 Attendance.newAttendanceField = function() {
     var attendanceInputs = document.getElementById('attendanceInputs');
+    var attendanceTimes = document.getElementsByClassName('attendanceTimes');
+    var inputValues = getValues(attendanceTimes);
     var html = attendanceInputs.innerHTML;
     html += '<p><input type="text" placeholder="9:00 am" class="attendanceTimes timeValidate" />';
-    html += '<input type="text" placeholder="5:00 pm" class="attendanceTimes timeValidate" /><span class="deleteTime"> - </span></p>';
+    html += '<input type="text" placeholder="5:00 pm" class="attendanceTimes timeValidate" /><button class="deleteTime"> - </button></p>';
     attendanceInputs.innerHTML = html;
-    var deleteTime = document.getElementsByClassName('deleteTime');
-    for (var i = 0; i < delteTime.length; i++) {
-        delteTime[i].addEventListener('click', function() {
-           // Delete Time Data
-            this.parentNode.parentNode.removeChild(this.parentNode);
-        });
-    }
+    updateValues(attendanceTimes,inputValues);
+    deleteTimeListener();
 };
 
 /**
@@ -496,6 +575,31 @@ Attendance.newAttendanceField = function() {
 // Framework? chart.js
 
 // Extra Crap for now **********************************************************************
+
+function deleteTimeListener() {
+    var deleteTime = document.getElementsByClassName('deleteTime');
+    for (var i = 0; i < deleteTime.length; i++) {
+        deleteTime[i].addEventListener('click', function() {
+            // Delete Time Data
+            this.parentNode.parentNode.removeChild(this.parentNode);
+        });
+    }
+}
+
+// Grab values from elements of specific class
+function getValues(elements) {
+    var values = [];
+    for ( var i = 0; i < elements.length; i++ ) {
+        values.push(elements[i].value);
+    }
+    return values;
+}
+
+function updateValues(elements, values) {
+    for ( var i = 0; i < values.length; i++ ) {
+        elements[i].value = values[i];
+    }
+}
 
 // Hides
 function hide(selector) {
@@ -635,7 +739,10 @@ window.onload = function() {
     document.getElementById('saveDay').addEventListener('click', function() {
         var employee = document.getElementById('employees').value;
         var date = document.getElementById('currentDay').textContent;
-        new Attendance(employee).updateAttendanceRecord( date );
+        attendance = new Attendance(employee);
+        attendance.updateAttendanceRecord( date );
+        attendance.viewDay( date );
+        
     });
     
     var close = document.getElementsByClassName('close');
@@ -644,6 +751,18 @@ window.onload = function() {
             hide(this.getAttribute('container'));
         });
     }
+    
+    document.getElementById('overwrite').addEventListener('change', function() {
+        if ( this.checked ) {
+            removeClass(document.getElementById('overwriteStatus'),'hide');
+        } else {
+            addClass(document.getElementById('overwriteStatus'),'hide');
+        }
+    });
+    
+    document.getElementById('addAttendanceInputs').addEventListener('click', function() {
+        Attendance.newAttendanceField();
+    });
 
 
 }; // End of window.onload
