@@ -274,7 +274,7 @@ function Attendance( employee ) {
     // Check if date exists in dataset and return data if it does and return false if not
     this.getDateAttendance = function( date ) {
         if ( date in this.attendance ) {
-            return this.attendance[ date ][ 'times' ];
+            return this.attendance[date];
         } else {
             return false;
         }
@@ -287,15 +287,13 @@ function Attendance( employee ) {
     
     // Create attendance form html and put it in the attendanceInputs div
     this.fillAttendanceForm = function( date ) {
-        var dayTimes = this.getDateAttendance( date );
+        var attendance = this.getDateAttendance( date );
         var html = '';
-        if ( dayTimes ) {
-            for( var i = 0; i < dayTimes.length; i++ ) {
-                if ( i % 2 === 0 ) {
-                    html += '<p><input type="text" class="attendanceTimes timeValidate" value="' + dayTimes[i] + '" />';
-                } else {
-                    html += '<input type="text" class="attendanceTimes timeValidate" value="' + dayTimes[i] + '" /></p>';
-                }
+        if ( attendance ) {
+            dayTimes = attendance[ 'times' ];
+            for( var i = 0; i < dayTimes.length; i += 2 ) {
+                html += '<p><input type="text" class="attendanceTimes timeValidate" value="' + dayTimes[i].inTime + '" />';
+                html += '<input type="text" class="attendanceTimes timeValidate" value="' + dayTimes[i].outTime + '" /></p>';
             }
         } else {
             html += '<p><input type="text" placeholder="9:00 am" class="attendanceTimes timeValidate" />';
@@ -337,15 +335,20 @@ function Attendance( employee ) {
         var newRecord = this.getFormAttendance();
         if ( newRecord ) {
             if ('attendance' in this.attendanceData[ this.employee ]) {
-                this.attendanceData[ this.employee ]['attendance'][ date ][ 'times'] = newRecord;
+                if ( date in this.attendanceData[ this.employee ].attendance) {
+                    this.attendanceData[ this.employee ].attendance[ date ].times.push(newRecord);
+                } else {
+                    this.attendanceData[ this.employee ].attendance[ date ] = {};
+                    this.attendanceData[ this.employee ].attendance[ date ].times = newRecord;
+                }
             } else {
-                var tmpObj = {
+                var tmpObj = {};
+                tmpObj[date] = {
                     times: newRecord, 
                     status: '',
                     excused: 'boolean',
                     requestOff: ''
                 };
-                tmpObj[ date ] = newRecord;
                 this.attendanceData[ this.employee ].attendance = tmpObj;
             }
             
@@ -383,7 +386,7 @@ function Attendance( employee ) {
                 html = '<div><p>Time was requested of from: ' + data.timeStart + '-' + data.timeEnd + '.</p></div>';
             break;
             case 'string':
-                html = '<div><p>' + string + 'was requested off.</p></div>';
+                html = '<div><p>' + data + 'was requested off.</p></div>';
             break;
         }
         document.getElementById('dayTimeOff').innerHTML = html;
@@ -393,8 +396,8 @@ function Attendance( employee ) {
     this.viewDay = function( date ) {
         var attendance = this.getDateAttendance( date );
         document.getElementById('currentDay').innerHTML = date;
+        console.log(attendance);
         for ( var i in attendance ) {
-            console.log(i);
             switch ( i ) {
                 case 'times':
                     this.fillAttendanceForm( date );
@@ -419,6 +422,7 @@ function Attendance( employee ) {
             calendarDays[i].addEventListener('click', function() {
                 var cDay = document.getElementById('calendarDay');
                 var date = this.getAttribute('date');
+                clearDayView();
                 removeClass( cDay, 'hide' );
                 _this.viewDay( date );
             });
@@ -524,6 +528,16 @@ function clearFields(elements) {
     for( var i = 0; i < elements.length; i++ ) {
         elements[i].value = '';
     }
+}
+
+//Clears Day View
+function clearDayView() {
+    document.getElementById('currentDay').innerHTML = '';
+    document.getElementById('status').innerHTML = '';
+    document.getElementById('excused').innerHTML = '';
+    document.getElementById('dayTimeOff').innerHTML = '';
+    var attendanceTimes = document.getElementsByClassName('attendanceTimes');
+    clearFields(attendanceTimes);
 }
 
 // Clears emeployee form
