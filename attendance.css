@@ -18,9 +18,14 @@ nav ul > li > a {
 
 }
 
+nav ul > li:nth-child(3) {
+    float: right;
+}
+
 /* ---------- Calendar ---------- */
 #calendar {
-    width: 66%;
+    /*width: 66%;*/ /* with stats */
+    width: 100%;
     padding: 10px;
     border-right: solid 1px black;
     box-sizing: border-box;
@@ -98,31 +103,35 @@ p.clockInOut {
 
 /* ---------- Status Colors ---------- */
 .present {
-    background: #A5FFBB;
+    background: #A5FFBB;
 }
 
 .late, .earlyLeave {
-    background: #ffb;
-    color: red;
+    background: #ffb;
+    color: red;
 }
 
 .late.excused, .earlyLeave.excused {
-    background: #ffb;
-    color: #000;
+    background: #ffb;
+    color: #000;
 }
 
 .absent {
-    background: #FFA7A7;
+    background: #FFA7A7;
 }
 
 .absent.excused {
-    background: #FFDE9C;
+    background: #FFDE9C;
 }
 
 .dayOff {
-    background: #ddd;
+    background: #ddd;
 }
 
 .requestOff {
-    background: #D9E9FD;
+    background: #D9E9FD;
+}
+
+.beforeStart {
+    background: #888;
 }

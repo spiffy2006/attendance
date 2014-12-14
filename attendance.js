@@ -283,7 +283,6 @@ function Attendance( employee ) {
     // Update localStorage
     this.updateTimeData = function() {
         localStorage.setItem( 'attendanceApp', JSON.stringify( this.attendanceData ) );
-        console.log(this.attendanceData);
     };
     
     // Create attendance form html and put it in the attendanceInputs div
@@ -330,7 +329,7 @@ function Attendance( employee ) {
             minutes: {}            
         };
         var split = '';
-        console.log(inoutTimes);
+        
         for ( var i in inoutTimes ) {            
             split = inoutTimes[i].split(' ');
             timeObj.ampm[i] = split[1];
@@ -365,8 +364,10 @@ function Attendance( employee ) {
     this.getAttendanceStatus = function( date, record ) {
         var day = new Date( date ).getDay();
         var inTime = record[0].inTime;
-        console.log(record);
         var outTime = '';
+        if ( record[0].inTime == '') {
+            return '';
+        }
         if (record.length > 1) {
             outTime = record[record.length - 1].outTime;
         } else {
@@ -391,11 +392,11 @@ function Attendance( employee ) {
         var newRecord = this.getFormAttendance();
         var excused = document.getElementById('excused').checked;
         var overwrite = document.getElementById('overwrite').checked;
+        var requestOff = document.getElementById('requestOff').checked;
         var status = '';
         if (overwrite) {
             status = document.getElementById('overwriteStatus').value;
         } else {
-            console.log(newRecord);
             status = this.getAttendanceStatus( date, newRecord );
         }
         if ( newRecord ) {
@@ -404,19 +405,18 @@ function Attendance( employee ) {
                     this.attendanceData[ this.employee ].attendance[ date ].times = [];
                     for ( var i = 0; i < newRecord.length; i++) {
                         this.attendanceData[ this.employee ].attendance[ date ].times.push(newRecord[i]);
-                        console.log(this.attendanceData[ this.employee ].attendance[ date ].times);
                     }
                     this.attendanceData[ this.employee ].attendance[ date ].excused = excused;
                     this.attendanceData[ this.employee ].attendance[ date ].overwrite = overwrite;
                     this.attendanceData[ this.employee ].attendance[ date ].status = status;
-                    console.log('date');
+                    this.attendanceData[ this.employee ].attendance[ date ].requestOff = requestOff;
                 } else {
                     this.attendanceData[ this.employee ].attendance[ date ] = {};
                     this.attendanceData[ this.employee ].attendance[ date ].times = newRecord;
                     this.attendanceData[ this.employee ].attendance[ date ].excused = excused;
                     this.attendanceData[ this.employee ].attendance[ date ].overwrite = overwrite;
                     this.attendanceData[ this.employee ].attendance[ date ].status = status;
-                    console.log('false');
+                    this.attendanceData[ this.employee ].attendance[ date ].requestOff = requestOff;
                 }
             } else {
                 var tmpObj = {};
@@ -425,10 +425,9 @@ function Attendance( employee ) {
                     status: status,
                     excused: excused,
                     overwrite: overwrite,
-                    requestOff: ''
+                    requestOff: requestOff
                 };
                 this.attendanceData[ this.employee ].attendance = tmpObj;
-                console.log('else');
             }
             
             this.updateTimeData();
@@ -459,7 +458,11 @@ function Attendance( employee ) {
         var html = '';
         switch ( typeof( data ) ) {
             case 'boolean':
-                html = '<div><p>No requested time off.</p></div>';
+                if ( data ) {
+                    html = '<div><p>This day was requested off.</p></div>';
+                } else {
+                    html = '<div><p>No requested time off.</p></div>';
+                }
             break;
             case 'object':
                 html = '<div><p>Time was requested of from: ' + data.timeStart + '-' + data.timeEnd + '.</p></div>';
@@ -475,22 +478,29 @@ function Attendance( employee ) {
     this.viewDay = function( date ) {
         var attendance = this.getDateAttendance( date );
         document.getElementById('currentDay').innerHTML = date;
-        console.log(attendance);
-        for ( var i in attendance ) {
-            switch ( i ) {
-                case 'times':
-                    this.fillAttendanceForm( date );
-                break;
-                case 'requestOff':
-                    this.parseRequestTime( attendance['requestOff'] );
-                break;
-                case 'status':
-                    document.getElementById(i).innerHTML = 'Attendance Status: ' + attendance[i];
-                break;
-                default:
-                    document.getElementById(i).checked = attendance[i];
-                break;
+        if ( attendance ) {
+            for ( var i in attendance ) {
+                switch ( i ) {
+                    case 'times':
+                        this.fillAttendanceForm( date );
+                    break;
+                    case 'requestOff':
+                        this.parseRequestTime( attendance['requestOff'] );
+                        document.getElementById(i).checked = attendance[i];
+                    break;
+                    case 'status':
+                        document.getElementById(i).innerHTML = 'Attendance Status: ' + attendance[i];
+                    break;
+                    default:
+                        document.getElementById(i).checked = attendance[i];
+                    break;
+                }
             }
+        } else {
+            document.getElementById('requestOff').checked = false;
+            document.getElementById('excused').checked = false;
+            document.getElementById('overwrite').checked = false;
+            document.getElementById('attendanceInputs').innerHTML = '<p><input type="text" placeholder="9:00 am" class="attendanceTimes timeValidate" /><input type="text" placeholder="5:00 pm" class="attendanceTimes timeValidate" /></p>';
         }
     };
     
@@ -558,6 +568,121 @@ Attendance.newAttendanceField = function() {
     deleteTimeListener();
 };
 
+function calendarClasses( employee ) {
+    this.employeeData = Employee.getAttendanceData()[employee];
+    this.employeeSchedule = this.employeeData.schedule;
+    if ( 'attendance' in this.employeeData ) {
+        this.employeeAttendance = this.employeeData.attendance;
+    } else {
+        this.employeeAttendance = false;
+    }    
+    
+    this.hasAttendanceData = function( date ) {
+        // Determine if there is any data for given date
+        if ( this.employeeAttendance ) {
+            if ( date in this.employeeAttendance ) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    };
+    
+    this.isScheduledDay = function( date ) {
+        // determines if they are scheduled
+        var day = new Date( date + ' 00:00:00' ).getDay();
+        if ( this.employeeSchedule[day].inTime != '' ) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+    
+    this.beforeStartDay = function( date ) {
+        // determine if today is after date
+        var dateArr = date.split('-');
+        var startDate = new Date( this.employeeData.startDate + ' 00:00:00' );
+        var year = parseInt( dateArr[0] );
+        var month = parseInt( dateArr[1] );
+        var day = parseInt( dateArr[2] );
+        if ( year < parseInt( startDate.getFullYear() ) ) {
+            return true;
+        } else if ( month < parseInt( startDate.getMonth() + 1 ) ) {
+            return true;
+        } else if ( day < parseInt( startDate.getDate() ) ) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+    
+    this.isAfterDay = function( date ) {
+        // determine if today is after date
+        var dateArr = date.split('-');
+        var currentDate = new Date();
+        var year = parseInt( dateArr[0] );
+        var month = parseInt( dateArr[1] );
+        var day = parseInt( dateArr[2] );
+        if ( year < parseInt( currentDate.getFullYear() ) ) {
+            return true;
+        } else if ( month < parseInt( currentDate.getMonth() + 1 ) ) {
+            return true;
+        } else if ( day < parseInt( currentDate.getDate() ) ) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+    
+    this.getStatus = function( date ) {
+        // collects all classes for this day.
+        var classes = '';
+        var today = new Date();
+        var dateString = today.getFullYear() + '-' + parseInt( today.getMonth() ) + 1 + '-' + today.getDate();
+        var statusClasses = {
+            Present: 'present',
+            Late: 'late',
+            'Early Leave': 'earlyLeave',
+            Absent: 'absent'
+        };
+        
+        if ( !this.beforeStartDay( date ) ) {
+            if ( this.isScheduledDay( date ) ) {
+                if ( this.hasAttendanceData( date ) ) {
+                    if ( this.employeeAttendance[date].requestOff ) {
+                        return this.isAfterDay( date ) ? 'absent excused' : 'requestOff';
+                    } else {
+                        classes += statusClasses[this.employeeAttendance[date].status] + ' ';
+                        classes += this.employeeAttendance[date].excused ? 'excused' : '';
+                    }
+                } else {
+                    if ( this.isAfterDay( date ) == false ) {
+                        return '';
+                    } else {
+                        return 'absent';
+                    }
+                }
+            } else {
+                return 'dayOff';
+            }
+        } else {
+            return 'beforeStart';
+        }
+        
+        return classes.trim();
+    };
+    
+    this.updateCalendar = function() {
+        var calendarDays = document.getElementsByClassName('calendar-day');
+        for ( var  i = 0; i < calendarDays.length; i ++ ) {
+            var classes = this.getStatus( calendarDays[i].getAttribute('date') );
+            addClass(calendarDays[i], classes);
+        }
+    };
+}
+
 /**
   *  Calculate and display stats
   */
@@ -620,7 +745,7 @@ function getEmployees() {
 function employeeSelectOptions() {
     var select = document.getElementById('employees');
     var employees = getEmployees();
-    var selectHTML = '<option value="">--select--</option>';
+    var selectHTML = '<option value="">--Select Employee--</option>';
     for ( var i = 0; i < employees.length; i++ ) {
         selectHTML += '<option>' + employees[i] + '</option>';
     }
@@ -655,10 +780,10 @@ function clearEmployeeForm() {
 // Safely adds a class to an element
 function addClass( element, className ) {
     var classAttr = element.getAttribute('class');
-    if ( classAttr == '' ) {
+    if ( classAttr == '' || classAttr == 'undefined' ) {
         element.setAttribute( 'class', className );
     } else {
-        element.setAttribute( 'class', ' ' + classAttr );
+        element.setAttribute( 'class', className + ' ' + classAttr );
     }
 }
 
@@ -710,11 +835,13 @@ window.onload = function() {
     }// End of changeMonth function
 
     document.getElementById('editEmployee').addEventListener('click', function() {
+        document.getElementById('employeeLegend').innerHTML = 'Edit Employee';
         document.getElementById('newEmployeeForm').setAttribute('class', '');
         Employee.fillEmployeeForm();
     });
 
     document.getElementById('addEmployee').addEventListener('click', function() {
+        document.getElementById('employeeLegend').innerHTML = 'Add New Employee';
         document.getElementById('newEmployeeForm').setAttribute('class', '');
         clearEmployeeForm();
     });
@@ -729,10 +856,17 @@ window.onload = function() {
     
     document.getElementById('employees').addEventListener('change', function() {
         var calendarDays = document.getElementsByClassName('calendar-day');
-        var name  = document.getElementById('employees').value;
+        var name = document.getElementById('employees').value;
+        var editEmployee = document.getElementById('editEmployee');
         if ( name != '' ) {
+            if ( editEmployee.hasAttribute('class') ) {
+                editEmployee.removeAttribute('class');
+            }
             var attendance = new Attendance( name );
+            new calendarClasses( name ).updateCalendar();
             attendance.bindCalendarClick();
+        } else {
+            editEmployee.setAttribute('class', 'hide');
         }
     });
     
@@ -742,7 +876,7 @@ window.onload = function() {
         attendance = new Attendance(employee);
         attendance.updateAttendanceRecord( date );
         attendance.viewDay( date );
-        
+        new calendarClasses( employee ).updateCalendar();
     });
     
     var close = document.getElementsByClassName('close');

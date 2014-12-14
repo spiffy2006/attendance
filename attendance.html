@@ -13,20 +13,20 @@
             <li>
                 <select id="employees"></select>
             </li>
-            <li><a id="editEmployee" href="javascript:void(0)">Edit Employee</a></li>
-            <li><a id="addEmployee" href="javascript:void(0)">Add Employee</a></li>
+            <li><a id="editEmployee" class="hide" href="javascript:void(0)">Edit Employee</a></li>
+            <li><a id="addEmployee" href="javascript:void(0)">+ Add Employee</a></li>
 
         </ul>
     </nav>
 
     <div id="calendar"></div>
 
-    <div id="attendanceStats">
+    <!--<div id="attendanceStats">
         <h2>Attendance Stats</h2>
         <p>Present: <span id="present"></span></p>
         <p>Late: <span id="late"></span></p>
         <p>Left Early: <span id="leftEarly"></span></p>
-        <p>Day Off: <span id="dayOff"></span></p>
+        <p>Absent: <span id="absent"></span></p>
         <p>No Show: <span id="noShow"></span></p>
 
     </div> <!-- End of attendanceStats div -->
@@ -34,7 +34,7 @@
     <div id="newEmployeeForm" class="hide">
         <a class="close" container="newEmployeeForm" href="javascript:void(0)">X</a>
         <fieldset>
-            <legend>Add New Employee</legend>
+            <legend id="employeeLegend">Add New Employee</legend>
                 <label>Name: </label>
                     <input type="text" name="name" class="employeeData" />
                 <label>Pay: </label>
@@ -64,7 +64,7 @@
                     <label>Saturday: </label>
                         <input type="text" placeholder="9:00 am" name="inTime" class="scheduleData timeValidate">
                         <input type="text" placeholder="5:00 pm" name="outTime" class="scheduleData timeValidate">
-                    <button id="newEmployeeSubmit">Add Employee</button>
+                    <button id="newEmployeeSubmit">Save</button>
         </fieldset>
 
 
@@ -83,7 +83,7 @@
                 <span>Overwrite Status</span>
             </div>
             <select id="overwriteStatus" class="hide"> <!--Dynamically add class attendanceData-->
-                <option>----Select----</option>
+                <option value="">----Select----</option>
                 <option>Present</option>
                 <option>Late</option>
                 <option>Early Leave</option>
@@ -91,6 +91,9 @@
             </select>
             <div>
                 <input id="excused" class="attendanceData" type="checkbox" name="excused" /><span> Excused</span>
+            </div>
+            <div>
+                <input id="requestOff" class="attendanceData" type="checkbox" name="excused" /><span> Requested Off</span>
             </div>
             <div id="dayTimeOff"></div>
             <p class="clockInOut">In and Out Times:</p>
