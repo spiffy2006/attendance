@@ -345,11 +345,11 @@ function Attendance( employee ) {
         var scheduleTime = this.getTimeObject(daySchedule);
         var scheduleMinutes = {
             inTime: ( scheduleTime.hours.inTime * 60 + scheduleTime.minutes.inTime ) + 15,
-            outTime: ( scheduleTime.hours.inTime * 60 + scheduleTime.minutes.inTime ) - 15
+            outTime: ( scheduleTime.hours.outTime * 60 + scheduleTime.minutes.outTime ) - 15
         };
         var compareMinutes = {
             inTime: ( compareTime.hours.inTime * 60 + compareTime.minutes.inTime ) + 15,
-            outTime: ( compareTime.hours.inTime * 60 + compareTime.minutes.inTime ) - 15
+            outTime: ( compareTime.hours.outTime * 60 + compareTime.minutes.outTime ) - 15
         };
         var status = 'Present';
         if ( scheduleMinutes.inTime < compareMinutes.inTime ) {
@@ -678,6 +678,7 @@ function calendarClasses( employee ) {
         var calendarDays = document.getElementsByClassName('calendar-day');
         for ( var  i = 0; i < calendarDays.length; i ++ ) {
             var classes = this.getStatus( calendarDays[i].getAttribute('date') );
+            var elementClasses = calendarDays[i].setAttribute('class', 'calendar-day');
             addClass(calendarDays[i], classes);
         }
     };
@@ -862,6 +863,9 @@ window.onload = function() {
             if ( editEmployee.hasAttribute('class') ) {
                 editEmployee.removeAttribute('class');
             }
+            var cal = new Calendar();
+            cal.generateHTML();
+            document.getElementById('calendar').innerHTML = cal.getHTML();
             var attendance = new Attendance( name );
             new calendarClasses( name ).updateCalendar();
             attendance.bindCalendarClick();
