@@ -303,8 +303,8 @@ function Attendance( employee ) {
         if ( attendance ) {
             dayTimes = attendance[ 'times' ];
             for( var i = 0; i < dayTimes.length; i++ ) {
-                html += '<p><input type="text" class="attendanceTimes timeValidate" value="' + dayTimes[i].inTime + '" />';
-                html += '<input type="text" class="attendanceTimes timeValidate" value="' + dayTimes[i].outTime + '" /><button class="deleteTime"> - </button></p>';
+                html += '<p><input type="text" placeholder="9:00 am" class="attendanceTimes timeValidate" value="' + dayTimes[i].inTime + '" />';
+                html += '<input type="text" placeholder="5:00 pm" class="attendanceTimes timeValidate" value="' + dayTimes[i].outTime + '" /><button class="deleteTime"> - </button></p>';
             }
         } else {
             html += '<p><input type="text" placeholder="9:00 am" class="attendanceTimes timeValidate" />';
@@ -522,13 +522,14 @@ function Attendance( employee ) {
         for ( var i = 0; i < calendarDays.length; i++ ) {
             /*var status = this.getDateAttendance( calendarDays[i].getAttribute('date') )['status'];
             addClass( calendarDays[i], status );*/ 
-            var _this = this;
+            //var _this = this;
             calendarDays[i].addEventListener('click', function() {
                 var cDay = document.getElementById('calendarDay');
                 var date = this.getAttribute('date');
+                var attendance = new Attendance( document.getElementById('employees').value );
                 clearDayView();
                 removeClass( cDay, 'hide' );
-                _this.viewDay( date );
+                attendance.viewDay( date );
             });
         }
     };
@@ -673,8 +674,9 @@ function calendarClasses( employee ) {
                     if ( this.employeeAttendance[date].requestOff ) {
                         return this.isAfterDay( date ) ? 'absent excused' : 'requestOff';
                     } else {
-                        classes += statusClasses[this.employeeAttendance[date].status] + ' ';
+                        classes += typeof statusClasses[this.employeeAttendance[date].status] != 'undefined' ? statusClasses[this.employeeAttendance[date].status] + ' ' : 'absent ';
                         classes += this.employeeAttendance[date].excused ? 'excused' : '';
+                        console.log(statusClasses[this.employeeAttendance[date].status]);
                     }
                 } else {
                     if ( this.isAfterDay( date ) == false ) {
