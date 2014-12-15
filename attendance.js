@@ -144,8 +144,10 @@ function Employee() {
     // Gets attendance data from employee
     this.getEmployeeAttendance = function() {
         var attendanceApp = Employee.getAttendanceData();
-        if ( 'attendance' in attendanceApp[this.employeeObj.name] ) {
-            this.employeeObj.attendance = attendanceApp[this.employeeObj.name].attendance;
+        if ( this.employeeObj.name in attendanceApp ) {
+            if ( 'attendance' in attendanceApp[this.employeeObj.name] ) {
+                this.employeeObj.attendance = attendanceApp[this.employeeObj.name].attendance;
+            }
         }
     };
 
