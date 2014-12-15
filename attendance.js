@@ -489,6 +489,7 @@ function Attendance( employee ) {
     this.viewDay = function( date ) {
         var attendance = this.getDateAttendance( date );
         document.getElementById('currentDay').innerHTML = date;
+        console.log(attendance);
         if ( attendance ) {
             for ( var i in attendance ) {
                 switch ( i ) {
@@ -850,6 +851,7 @@ window.onload = function() {
             changeMonth[i].addEventListener('click', newMonth);
         }
         var attendance = new Attendance( name );
+        attendance.bindCalendarClick();
         new calendarClasses( name ).updateCalendar();
     }// End of newMonth function
 
@@ -906,7 +908,7 @@ window.onload = function() {
         var date = document.getElementById('currentDay').textContent;
         attendance = new Attendance(employee);
         attendance.updateAttendanceRecord( date );
-        attendance.viewDay( date );
+        new Attendance(employee).viewDay( date );
         new calendarClasses( employee ).updateCalendar();
     });
     
