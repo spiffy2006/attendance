@@ -61,7 +61,7 @@ function Calendar(month, year) {
             for (var j = 0; j <= 6; j++) {
                 html += '<td';
                 if (day <= monthLength && (i > 0 || j >= startingDay)) {
-                    html += ' date="' + this.year + '-' + (this.month+1) + '-' + day + '" class="calendar-day">';
+                    html += ' date="' + this.year + '-' + (parseInt(this.month)+1) + '-' + day + '" class="calendar-day">';
                     html += day;
                     day++;
                 } else {
@@ -140,6 +140,14 @@ function Employee() {
         }
 
     };
+    
+    // Gets attendance data from employee
+    this.getEmployeeAttendance = function() {
+        var attendanceApp = Employee.getAttendanceData();
+        if ( 'attendance' in attendanceApp[this.employeeObj.name] ) {
+            this.employeeObj.attendance = attendanceApp[this.employeeObj.name].attendance;
+        }
+    };
 
     // Gathers all data for employee object
     this.getEmployeeObj = function() {
@@ -204,6 +212,7 @@ function Employee() {
         var attendanceAppObj = Employee.getAttendanceData();
 
         this.getEmployeeObj();
+        this.getEmployeeAttendance();
         attendanceAppObj[ this.employeeObj.name ] = this.employeeObj;
 
         localStorage.setItem( 'attendanceApp', JSON.stringify( attendanceAppObj ) );
@@ -265,7 +274,7 @@ function Attendance( employee ) {
     this.employeeData = this.attendanceData[ employee ];
     
     // Pull attendance record from user data
-    if (  this.employeeData.hasOwnProperty('attendance') ) {
+    if ( this.employeeData.hasOwnProperty('attendance') ) {
         this.attendance = this.employeeData['attendance'];
     } else {
         this.attendance = {};
@@ -607,11 +616,15 @@ function calendarClasses( employee ) {
         var year = parseInt( dateArr[0] );
         var month = parseInt( dateArr[1] );
         var day = parseInt( dateArr[2] );
+        
         if ( year < parseInt( startDate.getFullYear() ) ) {
             return true;
-        } else if ( month < parseInt( startDate.getMonth() + 1 ) ) {
+        } else if ( month < parseInt( startDate.getMonth() ) + 1 
+                   && year <= parseInt( startDate.getFullYear() ) ) {
             return true;
-        } else if ( day < parseInt( startDate.getDate() ) ) {
+        } else if ( day < parseInt( startDate.getDate() ) 
+                   && month <= parseInt( startDate.getMonth() ) + 1 
+                   && year <= parseInt( startDate.getFullYear() ) ) {
             return true;
         } else {
             return false;
@@ -627,9 +640,12 @@ function calendarClasses( employee ) {
         var day = parseInt( dateArr[2] );
         if ( year < parseInt( currentDate.getFullYear() ) ) {
             return true;
-        } else if ( month < parseInt( currentDate.getMonth() + 1 ) ) {
+        } else if ( month < parseInt( currentDate.getMonth() ) + 1 
+                   && year <= parseInt( currentDate.getFullYear() ) ) {
             return true;
-        } else if ( day < parseInt( currentDate.getDate() ) ) {
+        } else if ( day < parseInt( currentDate.getDate() ) 
+                   && month <= parseInt( currentDate.getMonth() ) + 1 
+                   && year <= parseInt( currentDate.getFullYear() ) ) {
             return true;
         } else {
             return false;
@@ -745,12 +761,14 @@ function getEmployees() {
 // Creates employee options html and sets them to select employee dropdown
 function employeeSelectOptions() {
     var select = document.getElementById('employees');
+    var name = select.value;
     var employees = getEmployees();
     var selectHTML = '<option value="">--Select Employee--</option>';
     for ( var i = 0; i < employees.length; i++ ) {
         selectHTML += '<option>' + employees[i] + '</option>';
     }
     select.innerHTML = selectHTML;
+    select.value = name;
 }
 
 // Sets fields empty on array of elements
@@ -822,12 +840,15 @@ window.onload = function() {
         var month = this.getAttribute('month');
         var year = this.getAttribute('year');
         var cal = new Calendar(month, year);
+        var name = document.getElementById('employees').value;
         cal.generateHTML();
         document.getElementById('calendar').innerHTML = cal.getHTML();
         var changeMonth = document.getElementsByClassName('change-month');
         for ( var i = 0; i < changeMonth.length; i++) {
             changeMonth[i].addEventListener('click', newMonth);
         }
+        var attendance = new Attendance( name );
+        new calendarClasses( name ).updateCalendar();
     }// End of newMonth function
 
     var changeMonth = document.getElementsByClassName('change-month');
@@ -866,6 +887,10 @@ window.onload = function() {
             var cal = new Calendar();
             cal.generateHTML();
             document.getElementById('calendar').innerHTML = cal.getHTML();
+            var changeMonth = document.getElementsByClassName('change-month');
+            for ( var i = 0; i < changeMonth.length; i++) {
+                changeMonth[i].addEventListener('click', newMonth);
+            }// End of changeMonth function
             var attendance = new Attendance( name );
             new calendarClasses( name ).updateCalendar();
             attendance.bindCalendarClick();
