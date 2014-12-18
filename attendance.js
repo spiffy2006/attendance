@@ -489,7 +489,6 @@ function Attendance( employee ) {
     this.viewDay = function( date ) {
         var attendance = this.getDateAttendance( date );
         document.getElementById('currentDay').innerHTML = date;
-        console.log(attendance);
         if ( attendance ) {
             for ( var i in attendance ) {
                 switch ( i ) {
@@ -530,6 +529,7 @@ function Attendance( employee ) {
                 clearDayView();
                 removeClass( cDay, 'hide' );
                 attendance.viewDay( date );
+                blurValidate();
             });
         }
     };
@@ -676,7 +676,6 @@ function calendarClasses( employee ) {
                     } else {
                         classes += typeof statusClasses[this.employeeAttendance[date].status] != 'undefined' ? statusClasses[this.employeeAttendance[date].status] + ' ' : 'absent ';
                         classes += this.employeeAttendance[date].excused ? 'excused' : '';
-                        console.log(statusClasses[this.employeeAttendance[date].status]);
                     }
                 } else {
                     if ( this.isAfterDay( date ) == false ) {
@@ -708,6 +707,137 @@ function calendarClasses( employee ) {
 /**
   *  Calculate and display stats
   */
+
+function CalcStats() {
+    
+    this.classIndexes = {};
+    
+    this.countElements = function( className ) {
+        return document.getElementsByClassName( className ).length;
+    };
+    
+    this.subtractExcused = function( className ) {
+        var elements = document.getElementsByClassName( className ).length;
+        var excused = this.getDaysExcused( className );
+        return elements - excused;
+    };
+    
+    this.getDaysExcused = function( className ) {
+        var elements = document.getElementsByClassName(className);
+        var amount = 0;
+        for ( var i = 0; i < elements.length; i++ ) {
+            if ( this.hasClass( elements[i], 'excused' ) ) {
+                //if ( typeof this.classIndexes[ className ] == undefined ) {
+                    this.classIndexes[ className ] = i;
+                //}
+                amount ++;
+            }
+        }
+        return amount;
+    };
+    
+    this.hasClass = function( element, className ) {
+        var classes = element.getAttribute( 'class' );
+        if ( classes.indexOf( className ) >= 0 ) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+    
+    this.getClassColor = function( className, index ) {
+        if ( document.getElementsByClassName( className ).length > 0 && index != 'default' ) {
+            return window.getComputedStyle( document.getElementsByClassName( className )[ index ] ).backgroundColor;
+        } else {
+            return 'rgb(0,0,0)';
+        }
+    };
+    
+    this.getOpaqueColor = function( className, index ) {
+        var rgb = this.getClassColor( className, index );
+        var opaque = ',0.8)';
+        return rgb.replace(')', opaque).replace('rgb', 'rgba');
+    };
+    
+    this.getExcusedObj = function( className, label ) {
+        var classIndex = typeof this.classIndexes[ className ] != 'undefined' ? this.classIndexes[ className ] : 'default';
+        return tmpObj = {
+            label: label + ' Excused',
+            color: this.getClassColor( className, classIndex ),
+            highlight: this.getOpaqueColor( className, classIndex ),
+            value: this.getDaysExcused( className )
+        };
+    };
+    
+    this.buildNumericData = function ( obj ) {
+        var numeric = [];
+        for ( var i in obj ) {
+            numeric.push( obj[i] );
+        }
+        return numeric;
+    };
+    
+    this.createChart = function() {
+        var ctx = document.getElementById("stats").getContext("2d");
+        var chartOptions = {
+            //Boolean - Whether we should show a stroke on each segment
+            segmentShowStroke : true,
+
+            //String - The colour of each segment stroke
+            segmentStrokeColor : "#fff",
+
+            //Number - The width of each segment stroke
+            segmentStrokeWidth : 2,
+
+            //Number - The percentage of the chart that we cut out of the middle
+            percentageInnerCutout : 0, // This is 0 for Pie charts
+
+            //Number - Amount of animation steps
+            animationSteps : 100,
+
+            //String - Animation easing effect
+            animationEasing : "easeOutBounce",
+
+            //Boolean - Whether we animate the rotation of the Doughnut
+            animateRotate : true,
+
+            //Boolean - Whether we animate scaling the Doughnut from the centre
+            animateScale : false,
+
+            //String - A legend template
+            legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+
+        };
+        var classLabels = {
+            present: {
+                label: 'Present',                
+            },
+            late: {
+                label: 'Late'
+            },
+            earlyLeave: {
+                label: 'Early Leave'
+            },
+            requestOff: {
+                label: 'Requested Off'
+            },
+            absent: {
+                label: 'Absent'
+            }
+        };
+        for ( var i in classLabels ) {
+            classLabels[i].color = this.getClassColor( i, 0 );
+            classLabels[i].highlight = this.getOpaqueColor( i, 0 );
+            if ( i != 'present' && i != 'requestOff' ) {
+                classLabels[i].value = this.subtractExcused(i);
+                classLabels[ i + 'Excused' ] = this.getExcusedObj( i, classLabels[i].label );
+            } else {
+                classLabels[i].value = this.countElements(i);
+            }
+        }
+        var stats = new Chart( ctx ).Pie( this.buildNumericData( classLabels ), chartOptions );
+    };
+}
 
 // Calculate stats
     // Calculate status precentages based on total number of days in month
@@ -822,6 +952,16 @@ function removeClass( element, className ) {
     element.setAttribute( 'class', attrArr.join(' ') );
 }
 
+//
+function blurValidate() {
+    var blurValidate = document.getElementsByClassName( 'timeValidate' );
+    for ( i = 0; i < blurValidate.length; i++ ) {
+        blurValidate[i].addEventListener( 'blur', function() {
+            new Schedule().validateScheduleData();
+        });
+    }
+}
+
 //Window onload
 window.onload = function() {
 
@@ -900,6 +1040,7 @@ window.onload = function() {
             var attendance = new Attendance( name );
             new calendarClasses( name ).updateCalendar();
             attendance.bindCalendarClick();
+            new CalcStats().createChart();
         } else {
             editEmployee.setAttribute('class', 'hide');
         }
@@ -912,6 +1053,7 @@ window.onload = function() {
         attendance.updateAttendanceRecord( date );
         new Attendance(employee).viewDay( date );
         new calendarClasses( employee ).updateCalendar();
+        new CalcStats().createChart();
     });
     
     var close = document.getElementsByClassName('close');
@@ -932,6 +1074,5 @@ window.onload = function() {
     document.getElementById('addAttendanceInputs').addEventListener('click', function() {
         Attendance.newAttendanceField();
     });
-
 
 }; // End of window.onload

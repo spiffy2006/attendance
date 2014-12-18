@@ -24,8 +24,8 @@ nav ul > li:nth-child(3) {
 
 /* ---------- Calendar ---------- */
 #calendar {
-    /*width: 66%;*/ /* with stats */
-    width: 100%;
+    width: 66%; /* with stats */
+    /*width: 100%;*/ /* without status */
     padding: 10px;
     border-right: solid 1px black;
     box-sizing: border-box;
